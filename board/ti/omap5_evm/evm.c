@@ -96,7 +96,7 @@ void set_muxconf_regs_non_essential(void)
 int board_mmc_init(bd_t *bis)
 {
 	omap_mmc_init(0);
-	omap_mmc_init(1);
+//	omap_mmc_init(1);
 	return 0;
 }
 #endif
