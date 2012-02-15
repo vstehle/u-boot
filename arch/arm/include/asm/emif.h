@@ -547,7 +547,7 @@
 #define SDRAM_MEMORY_TILER_TRAP 0x0
 #endif
 
-#define NUMBER_OF_EMIF_EXT_CTRL_REGISTERS	0x18
+#define NUMBER_OF_EMIF_EXT_CTRL_REGISTERS	30
 
 /* Reg mapping structure */
 struct emif_reg_struct {
@@ -605,9 +605,14 @@ struct emif_reg_struct {
 	u32 emif_ddr_phy_ctrl_1;
 	u32 emif_ddr_phy_ctrl_1_shdw;
 	u32 emif_ddr_phy_ctrl_2;
-	u32 padding7[12];
+	u32 padding12[4];
+	u32 emif_pri_cos_map;		// 0x100
+	u32 emif_connid_cos_1;		// 0x104
+	u32 emif_connid_cos_2;		// 0x108
+	u32 padding7[5];
 	u32 emif_rd_wr_exec_thresh;	// 0x120
-	u32 padding8[55];
+	u32 emif_cos_config;		// 0x124
+	u32 padding8[54];
 	u32 emif_ddr_ext_phy_ctrl_1;	// 0x200
 	u32 emif_ddr_ext_phy_ctrl_1_shdw;
 	u32 emif_ddr_ext_phy_ctrl_2;
@@ -656,6 +661,18 @@ struct emif_reg_struct {
 	u32 emif_ddr_ext_phy_ctrl_23_shdw;
 	u32 emif_ddr_ext_phy_ctrl_24;
 	u32 emif_ddr_ext_phy_ctrl_24_shdw;
+	u32 emif_ddr_ext_phy_ctrl_25;
+	u32 emif_ddr_ext_phy_ctrl_25_shdw;
+	u32 emif_ddr_ext_phy_ctrl_26;
+	u32 emif_ddr_ext_phy_ctrl_26_shdw;
+	u32 emif_ddr_ext_phy_ctrl_27;
+	u32 emif_ddr_ext_phy_ctrl_27_shdw;
+	u32 emif_ddr_ext_phy_ctrl_28;
+	u32 emif_ddr_ext_phy_ctrl_28_shdw;
+	u32 emif_ddr_ext_phy_ctrl_29;
+	u32 emif_ddr_ext_phy_ctrl_29_shdw;
+	u32 emif_ddr_ext_phy_ctrl_30;
+	u32 emif_ddr_ext_phy_ctrl_30_shdw;
 };
 
 struct dmm_lisa_map_regs {
@@ -1080,6 +1097,7 @@ struct emif_regs {
 	u32 temp_alert_config;
 	u32 emif_ddr_phy_ctlr_1_init;
 	u32 emif_ddr_phy_ctlr_1;
+	u32 emif_ddr_phy_ctlr_2;
 	u32 emif_ddr_ext_phy_ctrl_1_init;
 	u32 emif_ddr_ext_phy_ctrl_1;
 	u32 emif_ddr_ext_phy_ctrl_2_init;
@@ -1128,6 +1146,18 @@ struct emif_regs {
 	u32 emif_ddr_ext_phy_ctrl_23;
 	u32 emif_ddr_ext_phy_ctrl_24_init;
 	u32 emif_ddr_ext_phy_ctrl_24;
+	u32 emif_ddr_ext_phy_ctrl_25_init;
+	u32 emif_ddr_ext_phy_ctrl_25;
+	u32 emif_ddr_ext_phy_ctrl_26_init;
+	u32 emif_ddr_ext_phy_ctrl_26;
+	u32 emif_ddr_ext_phy_ctrl_27_init;
+	u32 emif_ddr_ext_phy_ctrl_27;
+	u32 emif_ddr_ext_phy_ctrl_28_init;
+	u32 emif_ddr_ext_phy_ctrl_28;
+	u32 emif_ddr_ext_phy_ctrl_29_init;
+	u32 emif_ddr_ext_phy_ctrl_29;
+	u32 emif_ddr_ext_phy_ctrl_30_init;
+	u32 emif_ddr_ext_phy_ctrl_30;
 	u32 emif_rd_wr_lvl_rmp_win;
 	u32 emif_rd_wr_lvl_rmp_ctl;
 	u32 emif_rd_wr_lvl_ctl;

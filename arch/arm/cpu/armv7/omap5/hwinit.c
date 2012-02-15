@@ -85,12 +85,12 @@ void do_io_settings(void)
 
 	/* DDR3 pins IO settings and make 0 for lpddr2 */
 	writel(0x7C7C7C6C, &(ioregs_base->control_ddr3ch1_0));
-	writel(0x64666466, &(ioregs_base->control_ddrch1_0));
-	writel(0x64666466, &(ioregs_base->control_ddrch1_1));
+	writel(0x64646464, &(ioregs_base->control_ddrch1_0));
+	writel(0x64646464, &(ioregs_base->control_ddrch1_1));
 
 	writel(0x7C7C7C6C, &(ioregs_base->control_ddr3ch2_0));
-	writel(0x64666466, &(ioregs_base->control_ddrch2_0));
-	writel(0x64666466, &(ioregs_base->control_ddrch2_1));
+	writel(0x64646464, &(ioregs_base->control_ddrch2_0));
+	writel(0x64646464, &(ioregs_base->control_ddrch2_1));
 
 
 	writel(0xBAE8C631, &(ioregs_base->control_ddrio_0));
@@ -105,6 +105,20 @@ void do_io_settings(void)
 	writel(0x0000C1A7,0x4AE0C144);
 	/* CONTROL_EMIF2_SDRAM_CONFIG_EXT */
 	writel(0x0000C1A7,0x4AE0C148);
+
+        // Disable DLL select
+	// reg_temp=*(int*)(CTRL_MODULE_WKUP+SECURE_EMIF1_SDRAM_CONFIG);
+        // reg_temp&=0xFFEFFFFF;
+        // *(int*)(CTRL_MODULE_WKUP+SECURE_EMIF1_SDRAM_CONFIG) = reg_temp;
+        io_settings = readl(0x4AE0C110) & 0xFFEFFFFF;
+	writel(io_settings, 0x4AE0C110);
+        
+        // Disable DLL select
+        // reg_temp=*(int*)(CTRL_MODULE_WKUP+SECURE_EMIF2_SDRAM_CONFIG);
+        // reg_temp&=0xFFEFFFFF;
+        // *(int*)(CTRL_MODULE_WKUP+SECURE_EMIF2_SDRAM_CONFIG) = reg_temp;
+        io_settings = readl(0x4AE0C118) & 0xFFEFFFFF;
+	writel(io_settings, 0x4AE0C118);
 
 	/* Efuse settings */
 	writel(EFUSE_1, &(ioregs_base->control_efuse_1));

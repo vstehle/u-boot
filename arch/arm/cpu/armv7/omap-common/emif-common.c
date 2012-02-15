@@ -199,25 +199,32 @@ static void ddr3_init(u32 base, const struct emif_regs *regs)
 	u32 *emif_ext_phy_ctrl_base = 0;
 	u32 i = 0;
 
-	/* Not NVM */
-
 	writel(0x0, &emif->emif_lpddr2_nvm_config); /* Making SDRAM_CONFIG_2 0x0 (0x4C00000C) */
 	writel(regs->sdram_config_init, &emif->emif_sdram_config);
-	writel(regs->ref_ctrl, &emif->emif_sdram_ref_ctrl_shdw);
-	writel(regs->sdram_tim1, &emif->emif_sdram_tim_1_shdw);
-	writel(regs->sdram_tim2, &emif->emif_sdram_tim_2_shdw);
-	writel(regs->sdram_tim3, &emif->emif_sdram_tim_3_shdw);
-	writel(0x00007070, &emif->emif_pwr_mgmt_ctrl_shdw); /* Will change in the sequencing */
-	writel(0x0A500000, &emif->emif_l3_config);
-	writel(0x00000001, &emif->emif_iodft_tlgc);
-	writel(regs->read_idle_ctrl, &emif->emif_read_idlectrl_shdw);
+	
+	writel(0x00002011, &emif->emif_iodft_tlgc);	// IODFT_TLGC
+	
 	writel(regs->zq_config, &emif->emif_zq_config);
 	writel(regs->temp_alert_config, &emif->emif_temp_alert_config);
-	writel(regs->emif_rd_wr_lvl_rmp_win, &emif->emif_rd_wr_lvl_rmp_win);
-	writel(regs->emif_rd_wr_lvl_rmp_ctl, &emif->emif_rd_wr_lvl_rmp_ctl);
-	writel(0x00000000, &emif->emif_rd_wr_lvl_ctl);
-	writel(0x00000000, &emif->emif_ddr_phy_ctrl_2);
-	writel(regs->emif_ddr_phy_ctlr_1, &emif->emif_ddr_phy_ctrl_1_shdw);
+	writel(0x0A500000, &emif->emif_l3_config);	// OCP_CONFIG
+	writel(regs->emif_rd_wr_exec_thresh, &emif->emif_rd_wr_exec_thresh);
+	
+	writel(0x00000000, &emif->emif_pri_cos_map);	// PRI_COS_MAP
+	writel(0x00000000, &emif->emif_connid_cos_1);	// CONNID_COS_1
+	writel(0x00000000, &emif->emif_connid_cos_2);	// CONNID_COS_2
+	writel(0x00FFFFFF, &emif->emif_cos_config);	// COS_CONFIG
+
+	writel(regs->emif_ddr_phy_ctlr_2, &emif->emif_ddr_phy_ctrl_2);
+
+	writel(regs->emif_ddr_phy_ctlr_1_init, &emif->emif_ddr_phy_ctrl_1);
+	writel(regs->sdram_tim1, &emif->emif_sdram_tim_1);
+	writel(regs->sdram_tim2, &emif->emif_sdram_tim_2);
+	writel(regs->sdram_tim3, &emif->emif_sdram_tim_3);
+
+	writel(0x00000000, &emif->emif_lpddr2_nvm_tim);	// LPDDR2_NVM_TIM
+
+	writel(regs->ref_ctrl, &emif->emif_sdram_ref_ctrl);
+	writel(regs->read_idle_ctrl, &emif->emif_read_idlectrl);// DLL_CALIB_CTRL
 
 	ext_phy_ctrl_base = (u32 *) &(regs->emif_ddr_ext_phy_ctrl_1_init);
 	emif_ext_phy_ctrl_base = (u32 *) &(emif->emif_ddr_ext_phy_ctrl_1);
@@ -231,6 +238,25 @@ static void ddr3_init(u32 base, const struct emif_regs *regs)
 		}
 	}
 
+	writel(regs->emif_rd_wr_lvl_rmp_win, &emif->emif_rd_wr_lvl_rmp_win);
+	writel(regs->emif_rd_wr_lvl_rmp_ctl, &emif->emif_rd_wr_lvl_rmp_ctl);
+	writel(0x00000000, &emif->emif_rd_wr_lvl_ctl);
+
+
+	/* Shadow regs - not sure if this is required? */
+	writel(regs->emif_ddr_phy_ctlr_1, &emif->emif_ddr_phy_ctrl_1_shdw);
+	writel(regs->sdram_tim1, &emif->emif_sdram_tim_1_shdw);
+	writel(regs->sdram_tim2, &emif->emif_sdram_tim_2_shdw);
+	writel(regs->sdram_tim3, &emif->emif_sdram_tim_3_shdw);
+
+	writel(0x00000000, &emif->emif_lpddr2_nvm_tim_shdw);	// LPDDR2_NVM_TIM_SHDW
+
+	//writel(0x00007070, &emif->emif_pwr_mgmt_ctrl_shdw); /* Will change in the sequencing */
+	writel(regs->ref_ctrl, &emif->emif_sdram_ref_ctrl_shdw);
+	writel(regs->read_idle_ctrl, &emif->emif_read_idlectrl_shdw);
+
+
+
 	/* Start the sequencing as given in GEl */
 
 	/* 1. Configure EMIF1 DDR in Self Refresh (CKE=0 and clk stopped)
@@ -240,13 +266,15 @@ static void ddr3_init(u32 base, const struct emif_regs *regs)
 	writel(0x00000200, &emif->emif_pwr_mgmt_ctrl);
 	// Insert 16 dummy read
 	for (i=0; i<0xF; i++)
-		{readl(&emif->emif_pwr_mgmt_ctrl); }
+		//{readl(&emif->emif_pwr_mgmt_ctrl); }
+		{readl(0x4AE0CDC8); }
 	//DDR_PHY_CTRL_1 -- Set invert_clkout (if activated)
-	writel(0x002C4208, &emif->emif_ddr_phy_ctrl_1);
-	writel(0x002C4208, &emif->emif_ddr_phy_ctrl_1_shdw);
+	writel(0x0024420A, &emif->emif_ddr_phy_ctrl_1);
+	writel(0x0024420A, &emif->emif_ddr_phy_ctrl_1_shdw);
 
 	for (i=0; i<0xF; i++)
-		{readl(&emif->emif_pwr_mgmt_ctrl); }
+		//{readl(&emif->emif_pwr_mgmt_ctrl); }
+		{readl(0x4AE0CDC8); }
 	//PWR_MGMT_CTRL -- Exit "self refresh" mode
 	writel(0x0, &emif->emif_pwr_mgmt_ctrl);
 
@@ -254,17 +282,23 @@ static void ddr3_init(u32 base, const struct emif_regs *regs)
 	//RDWR_LVL_CTRL -- force RDWRLVLFULL_START=1 / Launch full leveling
 	writel(0x80000000, &emif->emif_rd_wr_lvl_ctl);
 	//dummy_read=*(int*)(0x4C000038);    // Wait for EMIF1 to be done with Full_LVL (SW stalling - EMIF keeps IDLE_ack adderted until Full_LVL completion)
-	readl(&emif->emif_pwr_mgmt_ctrl);
+	readl(&emif->emif_rd_wr_lvl_ctl);
 
 	/* 3. Put back the Read Data Eye LVL num_of_samples=4 */
 	//EMIF1_SDRAM_CONFIG_EXT -- cslice_en[2:0]=111 / Local_odt=01 / dyn_pwrdn=1 / dis_reset=1 / rd_lvl_samples=00 (4)
-	writel(0x00001A7,0x4AE0C144);
+	if (base == EMIF1_BASE)
+		writel(0x00001A7, 0x4AE0C144);	// CONTROL_EMIF1_SDRAM_CONFIG_EXT
+	else if (base == EMIF2_BASE)
+		writel(0x00001A7, 0x4AE0C148);	// CONTROL_EMIF2_SDRAM_CONFIG_EXT
+	else
+		printf("ERROR - bad EMIF @ passed!\n");
 
 	/* 4. Launch 8 incremental WR_LVL (to compensate for a PHY limitation) */
 	//RDWR_LVL_CTRL -- force RDWRLVLFULL_START=0 / Set Write Leveling period = 2
 	writel(0x01000002, &emif->emif_rd_wr_lvl_ctl);
 	for (i=0; i<0xFFF; i++)
-		{readl(&emif->emif_pwr_mgmt_ctrl); } // Insert 4096 dummy read (should be at least 128us)
+		//{readl(&emif->emif_pwr_mgmt_ctrl); } // Insert 4096 dummy read (should be at least 128us)
+		{readl(0x4AE0CDC8); } // Insert 4096 dummy read (should be at least 128us)
 
 	/* 5. Turn-OFF any incremental LVL for first samples debug */
 	writel(0x0, &emif->emif_rd_wr_lvl_ctl);   //RDWR_LVL_CTRL -- Turn-OFF any incremental LVL for first samples debug
