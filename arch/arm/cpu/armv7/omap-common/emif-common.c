@@ -201,7 +201,7 @@ static void ddr3_init(u32 base, const struct emif_regs *regs)
 
 	/* Not NVM */
 
-	writel(0x0, &emif->emif_lpddr2_nvm_config); /* Making SDRAM_CONFIG_2 0x0 (0x4C000008) */
+	writel(0x0, &emif->emif_lpddr2_nvm_config); /* Making SDRAM_CONFIG_2 0x0 (0x4C00000C) */
 	writel(regs->sdram_config_init, &emif->emif_sdram_config);
 	writel(regs->ref_ctrl, &emif->emif_sdram_ref_ctrl_shdw);
 	writel(regs->sdram_tim1, &emif->emif_sdram_tim_1_shdw);
@@ -209,10 +209,14 @@ static void ddr3_init(u32 base, const struct emif_regs *regs)
 	writel(regs->sdram_tim3, &emif->emif_sdram_tim_3_shdw);
 	writel(0x00007070, &emif->emif_pwr_mgmt_ctrl_shdw); /* Will change in the sequencing */
 	writel(0x0A500000, &emif->emif_l3_config);
+	writel(0x00000001, &emif->emif_iodft_tlgc);
 	writel(regs->read_idle_ctrl, &emif->emif_read_idlectrl_shdw);
 	writel(regs->zq_config, &emif->emif_zq_config);
+	writel(regs->temp_alert_config, &emif->emif_temp_alert_config);
 	writel(regs->emif_rd_wr_lvl_rmp_win, &emif->emif_rd_wr_lvl_rmp_win);
 	writel(regs->emif_rd_wr_lvl_rmp_ctl, &emif->emif_rd_wr_lvl_rmp_ctl);
+	writel(0x00000000, &emif->emif_rd_wr_lvl_ctl);
+	writel(0x00000000, &emif->emif_ddr_phy_ctrl_2);
 	writel(regs->emif_ddr_phy_ctlr_1, &emif->emif_ddr_phy_ctrl_1_shdw);
 
 	ext_phy_ctrl_base = (u32 *) &(regs->emif_ddr_ext_phy_ctrl_1_init);
@@ -258,7 +262,7 @@ static void ddr3_init(u32 base, const struct emif_regs *regs)
 
 	/* 4. Launch 8 incremental WR_LVL (to compensate for a PHY limitation) */
 	//RDWR_LVL_CTRL -- force RDWRLVLFULL_START=0 / Set Write Leveling period = 2
-	writel(0x80000000, &emif->emif_rd_wr_lvl_ctl);
+	writel(0x01000002, &emif->emif_rd_wr_lvl_ctl);
 	for (i=0; i<0xFFF; i++)
 		{readl(&emif->emif_pwr_mgmt_ctrl); } // Insert 4096 dummy read (should be at least 128us)
 
