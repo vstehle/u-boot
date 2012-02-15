@@ -312,6 +312,73 @@ const struct emif_regs emif_regs_elpida_266_mhz_1cs = {
 	.emif_rd_wr_exec_thresh		= 0x00000305
 };
 
+const struct emif_regs emif_regs_ddr_1066_mhz_2cs = {
+	.sdram_config_init		= 0x61851B3A, /* as per the EMIF4D programming */
+	.sdram_config			= 0x61811B3A, /* as per the Sheet1 */
+	.ref_ctrl			= 0x00001035,
+	.sdram_tim1			= 0xCCCF36B3,
+	.sdram_tim2			= 0x308F7FDA,
+	.sdram_tim3			= 0x027F88A8,
+	.read_idle_ctrl			= 0x00050000,
+	.zq_config			= 0x0007190B,
+	.temp_alert_config		= 0x0,
+	.emif_ddr_phy_ctlr_1_init	= 0x00284208, /* 0x00284208 as per Sheet1 */
+	.emif_ddr_phy_ctlr_1		= 0x00284208, /* 0x002C4208 as per EMIF4D */
+	.emif_ddr_ext_phy_ctrl_1_init	= 0x04040100,
+	.emif_ddr_ext_phy_ctrl_1	= 0x04040100,
+	.emif_ddr_ext_phy_ctrl_2_init	= 0x0,
+	.emif_ddr_ext_phy_ctrl_2	= 0x0,
+	.emif_ddr_ext_phy_ctrl_3_init	= 0x0,
+	.emif_ddr_ext_phy_ctrl_3	= 0x0,
+	.emif_ddr_ext_phy_ctrl_4_init	= 0x0,
+	.emif_ddr_ext_phy_ctrl_4	= 0x0,
+	.emif_ddr_ext_phy_ctrl_5_init	= 0x4350D435,
+	.emif_ddr_ext_phy_ctrl_5	= 0x4350D435,
+	.emif_ddr_ext_phy_ctrl_6_init	= 0x50D4350D,
+	.emif_ddr_ext_phy_ctrl_6	= 0x50D4350D,
+	.emif_ddr_ext_phy_ctrl_7_init	= 0x00000D43,
+	.emif_ddr_ext_phy_ctrl_7	= 0x00000D43,
+	.emif_ddr_ext_phy_ctrl_8_init	= 0x04010040,
+	.emif_ddr_ext_phy_ctrl_8	= 0x04010040,
+	.emif_ddr_ext_phy_ctrl_9_init	= 0x01004010,
+	.emif_ddr_ext_phy_ctrl_9	= 0x01004010,
+	.emif_ddr_ext_phy_ctrl_10_init	= 0x00001004,
+	.emif_ddr_ext_phy_ctrl_10	= 0x00001004,
+	.emif_ddr_ext_phy_ctrl_11_init	= 0x00000000,
+	.emif_ddr_ext_phy_ctrl_11	= 0x00000000,
+	.emif_ddr_ext_phy_ctrl_12_init	= 0x00000000,
+	.emif_ddr_ext_phy_ctrl_12	= 0x00000000,
+	.emif_ddr_ext_phy_ctrl_13_init	= 0x00000000,
+	.emif_ddr_ext_phy_ctrl_13	= 0x00000000,
+	.emif_ddr_ext_phy_ctrl_14_init	= 0x80080080,
+	.emif_ddr_ext_phy_ctrl_14	= 0x80080080,
+	.emif_ddr_ext_phy_ctrl_15_init	= 0x00800800,
+	.emif_ddr_ext_phy_ctrl_15	= 0x00800800,
+	.emif_ddr_ext_phy_ctrl_16_init	= 0x08102040,
+	.emif_ddr_ext_phy_ctrl_16	= 0x08102040,
+	.emif_ddr_ext_phy_ctrl_17_init	= 0x00000002,
+	.emif_ddr_ext_phy_ctrl_17	= 0x00000002,
+	.emif_ddr_ext_phy_ctrl_18_init	= 0x0,
+	.emif_ddr_ext_phy_ctrl_18	= 0x0,
+	.emif_ddr_ext_phy_ctrl_19_init	= 0x0,
+	.emif_ddr_ext_phy_ctrl_19	= 0x0,
+	.emif_ddr_ext_phy_ctrl_20_init	= 0x0,
+	.emif_ddr_ext_phy_ctrl_20	= 0x0,
+	.emif_ddr_ext_phy_ctrl_21_init	= 0x00000000,
+	.emif_ddr_ext_phy_ctrl_21	= 0x00000000,
+	.emif_ddr_ext_phy_ctrl_22_init	= 0x00000000,
+	.emif_ddr_ext_phy_ctrl_22	= 0x00000000,
+	.emif_ddr_ext_phy_ctrl_23_init	= 0x00000000,
+	.emif_ddr_ext_phy_ctrl_23	= 0x00000000,
+	.emif_ddr_ext_phy_ctrl_24_init	= 0x00000057,
+	.emif_ddr_ext_phy_ctrl_24	= 0x00000057,
+	.emif_rd_wr_lvl_rmp_win		= 0x0,
+	.emif_rd_wr_lvl_rmp_ctl		= 0x0,
+	.emif_rd_wr_lvl_ctl		= 0x00335973, /* = 0 as per the GEL */
+	.emif_rd_wr_exec_thresh		= 0x00000305 /* not used */
+};
+
+
 /*
  * 16MB section of highest priority to trap unmapped tiler access.
  * and the rest is mapped for normal memory in the next section.
@@ -323,13 +390,19 @@ const struct dmm_lisa_map_regs lisa_map_16G_x_1_x_2 = {
 	.dmm_lisa_map_3 = 0xFF020100
 };
 
+static void emif_get_reg_dump_5432(u32 emif_nr, const struct emif_regs **regs)
+{
+	*regs = &emif_regs_ddr_1066_mhz_2cs;
+}
 static void emif_get_reg_dump_sdp(u32 emif_nr, const struct emif_regs **regs)
 {
 	*regs = &emif_regs_elpida_532_mhz_2cs;
 }
 void emif_get_reg_dump(u32 emif_nr, const struct emif_regs **regs)
+#if 0
 	__attribute__((weak, alias("emif_get_reg_dump_sdp")));
-
+#endif
+	__attribute__((weak, alias("emif_get_reg_dump_5432")));
 static void emif_get_dmm_regs_sdp(const struct dmm_lisa_map_regs
 						**dmm_lisa_regs)
 {

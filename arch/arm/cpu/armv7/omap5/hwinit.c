@@ -61,6 +61,7 @@ void do_io_settings(void)
 	struct omap5_sys_ctrl_regs *ioregs_base =
 			(struct omap5_sys_ctrl_regs *) OMAP5_IOREGS_BASE;
 
+#if 0  /* Keep this in if else for 5430, 5432 */
 	/* LPDDR2 io settings */
 	writel(DDR_IO_I_34OHM_SR_FASTEST_WD_DQ_NO_PULL_DQS_PULL_DOWN,
 					&(ioregs_base->control_ddrch1_0));
@@ -80,6 +81,30 @@ void do_io_settings(void)
 					&(ioregs_base->control_ddrio_1));
 	writel(DDR_IO_2_CA_OUT_EN_ALL_CA_INT_EN_ALL,
 					&(ioregs_base->control_ddrio_2));
+#endif
+
+	/* DDR3 pins IO settings and make 0 for lpddr2 */
+	writel(0x7C7C7C6C, &(ioregs_base->control_ddr3ch1_0));
+	writel(0x64666466, &(ioregs_base->control_ddrch1_0));
+	writel(0x64666466, &(ioregs_base->control_ddrch1_1));
+
+	writel(0x7C7C7C6C, &(ioregs_base->control_ddr3ch2_0));
+	writel(0x64666466, &(ioregs_base->control_ddrch2_0));
+	writel(0x64666466, &(ioregs_base->control_ddrch2_1));
+
+
+	writel(0xBAE8C631, &(ioregs_base->control_ddrio_0));
+	writel(0xBC6318DC, &(ioregs_base->control_ddrio_1));
+	writel(0x0, &(ioregs_base->control_ddrio_2));
+	/* 5432 does not use lpddr2 */
+	writel(0x0, &(ioregs_base->control_lpddr2ch1_0));
+	writel(0x0, &(ioregs_base->control_lpddr2ch1_1));
+
+	/* Need to split u32 pad4[3680198]; to get 0x4AE0C144,8 */
+	/* CONTROL_EMIF1_SDRAM_CONFIG_EXT */
+	writel(0x0000C1A7,0x4AE0C144);
+	/* CONTROL_EMIF2_SDRAM_CONFIG_EXT */
+	writel(0x0000C1A7,0x4AE0C148);
 
 	/* Efuse settings */
 	writel(EFUSE_1, &(ioregs_base->control_efuse_1));
