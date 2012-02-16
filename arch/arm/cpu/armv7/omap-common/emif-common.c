@@ -1259,8 +1259,8 @@ void sdram_init(void)
 	in_sdram = running_from_sdram();
 	debug("in_sdram = %d\n", in_sdram);
 
-	if (!in_sdram)
-		bypass_dpll(&prcm->cm_clkmode_dpll_core);
+//	if (!in_sdram)
+//		bypass_dpll(&prcm->cm_clkmode_dpll_core);
 
 	do_sdram_init(EMIF1_BASE);
 	do_sdram_init(EMIF2_BASE);
@@ -1271,7 +1271,7 @@ void sdram_init(void)
 		emif_post_init_config(EMIF2_BASE);
 	}
 	/* for the shadow registers to take effect */
-	freq_update_core();
+//	freq_update_core();
 
 	/* Do some testing after the init */
 	if (!in_sdram) {
