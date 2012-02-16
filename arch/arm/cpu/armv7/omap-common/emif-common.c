@@ -1263,6 +1263,12 @@ void sdram_init(void)
 //	if (!in_sdram)
 //		bypass_dpll(&prcm->cm_clkmode_dpll_core);
 
+
+    // Hack!
+    printf("Hack!\n");
+    writel(0, 0x4A004110);    // CM_DLL_CTRL
+
+
 	do_sdram_init(EMIF1_BASE);
 	do_sdram_init(EMIF2_BASE);
 
