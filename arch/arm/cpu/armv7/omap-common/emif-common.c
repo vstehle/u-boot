@@ -265,14 +265,14 @@ static void ddr3_init(u32 base, const struct emif_regs *regs)
 	//PWR_MGMT_CTRL -- Enter "self refresh" mode
 	writel(0x00000200, &emif->emif_pwr_mgmt_ctrl);
 	// Insert 16 dummy read
-	for (i=0; i<0xF; i++)
+	for (i=0; i<0xFFF; i++)
 		//{readl(&emif->emif_pwr_mgmt_ctrl); }
 		{readl(0x4AE0CDC8); }
 	//DDR_PHY_CTRL_1 -- Set invert_clkout (if activated)
 	writel(0x0024420A, &emif->emif_ddr_phy_ctrl_1);
 	writel(0x0024420A, &emif->emif_ddr_phy_ctrl_1_shdw);
 
-	for (i=0; i<0xF; i++)
+	for (i=0; i<0xFFF; i++)
 		//{readl(&emif->emif_pwr_mgmt_ctrl); }
 		{readl(0x4AE0CDC8); }
 	//PWR_MGMT_CTRL -- Exit "self refresh" mode
@@ -283,6 +283,7 @@ static void ddr3_init(u32 base, const struct emif_regs *regs)
 	writel(0x80000000, &emif->emif_rd_wr_lvl_ctl);
 	//dummy_read=*(int*)(0x4C000038);    // Wait for EMIF1 to be done with Full_LVL (SW stalling - EMIF keeps IDLE_ack adderted until Full_LVL completion)
 	readl(&emif->emif_rd_wr_lvl_ctl);
+	for (i=0; i<0xFFF; i++) readl(0x4AE0CDC8);
 
 	/* 3. Put back the Read Data Eye LVL num_of_samples=4 */
 	//EMIF1_SDRAM_CONFIG_EXT -- cslice_en[2:0]=111 / Local_odt=01 / dyn_pwrdn=1 / dis_reset=1 / rd_lvl_samples=00 (4)
@@ -296,7 +297,7 @@ static void ddr3_init(u32 base, const struct emif_regs *regs)
 	/* 4. Launch 8 incremental WR_LVL (to compensate for a PHY limitation) */
 	//RDWR_LVL_CTRL -- force RDWRLVLFULL_START=0 / Set Write Leveling period = 2
 	writel(0x01000002, &emif->emif_rd_wr_lvl_ctl);
-	for (i=0; i<0xFFF; i++)
+	for (i=0; i<0xFFFF; i++)
 		//{readl(&emif->emif_pwr_mgmt_ctrl); } // Insert 4096 dummy read (should be at least 128us)
 		{readl(0x4AE0CDC8); } // Insert 4096 dummy read (should be at least 128us)
 
