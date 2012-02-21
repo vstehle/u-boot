@@ -50,6 +50,8 @@ const struct pad_conf_entry wkup_padconf_array_essential[] = {
 
 const struct pad_conf_entry core_padconf_array_non_essential[] = {
 
+	{I2C5_SCL, (IEN | M0)},    /*  I2C5_SCL    */
+	{I2C5_SDA, (IEN | M0)},    /*  I2C5_SDA    */
 };
 
 const struct pad_conf_entry wkup_padconf_array_non_essential[] = {
