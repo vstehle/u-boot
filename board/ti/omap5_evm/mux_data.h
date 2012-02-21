@@ -50,6 +50,10 @@ const struct pad_conf_entry wkup_padconf_array_essential[] = {
 
 const struct pad_conf_entry core_padconf_array_non_essential[] = {
 
+	{HDMI_CEC, (IEN | M0)},    /*  HDMI_CEC   */
+	{HDMI_HPD, (PTD | IEN | M0)},    /*  HDMI_HPD   */
+	{HDMI_DDC_SCL, (IEN | M0)},    /*  HDMI_DDC_SCL */
+	{HDMI_DDC_SDA, (IEN | M0)},    /*  HDMI_DDC_SDA */
 	{I2C5_SCL, (IEN | M0)},    /*  I2C5_SCL    */
 	{I2C5_SDA, (IEN | M0)},    /*  I2C5_SDA    */
 };
