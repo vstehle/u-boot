@@ -96,7 +96,7 @@ static void omap_ehci_soft_phy_reset(int port)
 	ulpi_vp.viewport_addr = (u32)&ehci->insreg05_utmi_ulpi;
 	ulpi_vp.port_num = port;
 
-	ulpi_reset(&ulpi_vp);
+//	ulpi_reset(&ulpi_vp);
 }
 
 inline int __board_usb_init(void)
