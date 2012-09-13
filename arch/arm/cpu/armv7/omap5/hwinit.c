@@ -52,12 +52,21 @@ static struct gpio_bank gpio_bank_54xx[6] = {
 const struct gpio_bank *const omap_gpio_bank = gpio_bank_54xx;
 
 #ifdef CONFIG_SPL_BUILD
+static void force_efuse_1_4(struct omap_sys_ctrl_regs *ioregs_base)
+{
+	printf("Forcing i/o trimming values in efuse_1-4.\n");
+	writel(EFUSE_1, &(ioregs_base->control_efuse_1));
+	writel(EFUSE_2, &(ioregs_base->control_efuse_2));
+	writel(EFUSE_3, &(ioregs_base->control_efuse_3));
+	writel(EFUSE_4, &(ioregs_base->control_efuse_4));
+}
+
 /*
  * Some tuning of IOs for optimal power and performance
  */
 void do_io_settings(void)
 {
-	u32 io_settings = 0, mask = 0;
+	u32 io_settings = 0, mask = 0, reg;
 	struct omap_sys_ctrl_regs *ioregs_base =
 		      (struct omap_sys_ctrl_regs *) SYSCTRL_GENERAL_CORE_BASE;
 
@@ -173,11 +182,32 @@ void do_io_settings(void)
 		    io_settings = readl(0x4AE0C118) & 0xFFEFFFFF;
 		writel(io_settings, 0x4AE0C118);
 	}
-	/* Efuse settings */
-	writel(EFUSE_1, &(ioregs_base->control_efuse_1));
-	writel(EFUSE_2, &(ioregs_base->control_efuse_2));
-	writel(EFUSE_3, &(ioregs_base->control_efuse_3));
-	writel(EFUSE_4, &(ioregs_base->control_efuse_4));
+
+	/* For 4 lots only we do the efuse settings */
+	reg = readl(CONTROL_DIE_ID1);
+	printf("die_id1: %x\n", reg);
+
+        switch (reg) {
+	case 0x14e74eb:
+		printf("Untrimmed IC from lead lot KFW7F\n");
+		force_efuse_1_4(ioregs_base);
+		break;
+
+	case 0x14e74e8:
+		printf("Untrimmed IC from 2nd lot KFW7C\n");
+		force_efuse_1_4(ioregs_base);
+		break;
+
+	case 0x14fae9a:
+		printf("Untrimmed IC from 3rd lot KGH0A\n");
+		force_efuse_1_4(ioregs_base);
+		break;
+
+	case 0x14e74ec:
+		printf("Untrimmed IC from 4th lot KFW7G\n");
+		force_efuse_1_4(ioregs_base);
+		break;
+	}
 }
 #endif
 
