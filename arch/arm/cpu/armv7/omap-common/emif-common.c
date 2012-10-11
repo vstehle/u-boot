@@ -1218,6 +1218,57 @@ void dmm_init(u32 base)
 	}
 }
 
+static int one_test_ok(volatile u32 *p, u32 v)
+{
+	*p = v;
+	return (*p == v);
+}
+
+static int memory_address_ok(u32 address)
+{
+	volatile u32 *p = (volatile u32 *)address;
+	u32 saved = *p;
+	int r = 0; // Default to KO.
+
+	if (!one_test_ok(p, 0x00000000)) goto end;
+	if (!one_test_ok(p, 0xffffffff)) goto end;
+	if (!one_test_ok(p, 0xaaaaaaaa)) goto end;
+	if (!one_test_ok(p, 0x55555555)) goto end;
+	if (!one_test_ok(p, 0x12345678)) goto end;
+
+	// If we arrive here the address is ok.
+	r = 1;
+
+end:
+	*p = saved;
+	return r;
+}
+
+/* Hack! Workaround an issue with some recent PandaBoard 5, which have one
+ * faulty EMIF. Try to detect that automatically. We leave the faulty EMIF+phy
+ * enabled, as the kernel needs it not to break. We assume the DDR is
+ * "described" in lisa_map_2.
+ */
+static void workaround_faulty_emif(void)
+{
+	struct dmm_lisa_map_regs *hw_lisa_map_regs = (struct dmm_lisa_map_regs *)DMM_BASE;
+	u32 lisa_map = readl(&hw_lisa_map_regs->dmm_lisa_map_2);
+
+	if (!memory_address_ok(0x80000000)) {
+		printf("Hack! Disabling faulty EMIF1\n");
+		lisa_map = lisa_map & ~0x00fc0300 | 0x00600200;
+
+	} else if (!memory_address_ok(0x80000000 + 128)) {
+		printf("Hack! Disabling faulty EMIF2\n");
+		lisa_map = lisa_map & ~0x00fc0300 | 0x00600100;
+	}
+
+	printf("lisa_map_2: 0x%08x\n", lisa_map);
+	writel(lisa_map, &hw_lisa_map_regs->dmm_lisa_map_2);
+	hw_lisa_map_regs = (struct dmm_lisa_map_regs *)MA_BASE;
+	writel(lisa_map, &hw_lisa_map_regs->dmm_lisa_map_2);
+}
+
 /*
  * SDRAM initialization:
  * SDRAM initialization has two parts:
@@ -1269,6 +1320,10 @@ void sdram_init(void)
 	/* for the shadow registers to take effect */
 	if (omap_rev != OMAP5432_ES1_0)
 		freq_update_core();
+
+	/* Now is a good time to workaround faulty emif. */
+	if (omap_rev == OMAP5432_ES1_0 && !in_sdram)
+		workaround_faulty_emif();
 
 	/* Do some testing after the init */
 	if (!in_sdram) {
