@@ -8,6 +8,8 @@
  * Marius Groeger <mgroeger@sysgo.de>
  *
  * Copyright (C) 2001  Erik Mouw (J.A.K.Mouw@its.tudelft.nl)
+ * HYP entry (c) 2012  Ian Molton <ian.molton@codethink.co.uk>
+ *                and  Clemens Fischer <clemens.fischer@h-da.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +35,37 @@
 #include <fdt_support.h>
 #include <asm/bootm.h>
 #include <linux/compiler.h>
+
+/* A small stack to allow us to safely call the OMAP5 monitor API, in order to
+ * enable HYP mode. This must be accessible in HYP mode.
+ */
+unsigned int hyp_primary_stack[11];
+
+/*
+ * function called by cpu 1 after wakeup
+ */
+extern void __hyp_init_sec(void);
+
+asm (
+	".arch_extension sec\n"
+	".pushsection .text\n"
+	".global __hyp_init_sec\n"
+	"__hyp_init_sec:\n"
+		"ldr r12, =0x102\n"
+		"mov r0, pc\n"
+		"smc 0x1\n"
+		"ldr r1, =0x48281804\n" // AUX_CORE_BOOT_1
+		"mov r2, #0\n"
+		"str r2, [r1]\n"
+		"isb\n"
+		"dsb\n"
+		"1: wfe\n"
+		"ldr r2, [r1]\n"
+		"cmp r2, #0\n"
+		"movne pc, r2\n"
+		"b 1b\n"
+	".popsection\n"
+);
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -224,6 +257,46 @@ static void boot_prep_linux(bootm_headers_t *images)
 	}
 }
 
+/*
+ * Enable HYP mode on the OMAP5 CPU
+ *
+ * FIXME: this needs to test to make sure its running on an OMAP5
+ *
+ * We wake up CPU1 at __hyp_init_sec which allows us to put it into HYP
+ * mode.
+ *
+ * CPU1 then clears AUX_CORE_BOOT_0 and enters WFE, until the kernel wakes it.
+ *
+ * In order to avoid CPU1 continuing execution on just about any event, we
+ * wait for AUX_CORE_BOOT_0 to contain a non-zero address, at which point
+ * we continue execution at that address.
+ *
+ */
+
+void hyp_enable(void) {
+	 /*Wake up CPU1 and enable HYP on CPU0. */
+	asm(
+		".arch_extension sec\n"
+		"ldr r1, =0x48281800\n"     // AUX_CORE_BOOT_1
+		"ldr r2, =__hyp_init_sec\n"
+		"str r2, [r1, #4]\n"
+		"mov r2, #0x200\n"
+		"str r2, [r1]\n"            // AUX_CORE_BOOT_0
+		"isb\n"
+		"dmb\n"
+		"dsb\n"
+		"sev\n"                     // Wake CPU1
+		"ldr r1,=hyp_primary_stack\n"
+		"ldr r12, =0x102\n"
+		"mov r0, pc\n"
+		"stm   r1, {r4-r14}\n"
+		"smc 0x1\n"                 // CPU0 -> HYP mode
+		"ldr r1,=hyp_primary_stack\n"
+		"ldm   r1, {r4-r14}\n"
+		:::"r0", "r1", "r2", "r3", "cc", "memory"
+	);
+};
+
 /* Subcommand: GO */
 static void boot_jump_linux(bootm_headers_t *images)
 {
@@ -249,6 +322,8 @@ static void boot_jump_linux(bootm_headers_t *images)
 		r2 = (unsigned long)images->ft_addr;
 	else
 		r2 = gd->bd->bi_boot_params;
+
+	hyp_enable();
 
 	kernel_entry(0, machid, r2);
 }
