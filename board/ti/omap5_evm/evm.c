@@ -119,11 +119,11 @@ static struct omap_usbhs_board_data usbhs_bdata = {
 	.port_mode[2] = OMAP_EHCI_PORT_MODE_HSIC,
 };
 
-int ehci_hcd_init(void)
+int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
 	int ret;
 
-	ret = omap_ehci_hcd_init(&usbhs_bdata);
+	ret = omap_ehci_hcd_init(&usbhs_bdata, hccr, hcor);
 	if (ret < 0)
 		return ret;
 
