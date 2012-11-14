@@ -215,7 +215,14 @@ void emif_update_timings(u32 base, const struct emif_regs *regs)
 	writel(regs->read_idle_ctrl, &emif->emif_read_idlectrl_shdw);
 	writel(regs->zq_config, &emif->emif_zq_config);
 	writel(regs->temp_alert_config, &emif->emif_temp_alert_config);
-	writel(regs->emif_ddr_phy_ctlr_1, &emif->emif_ddr_phy_ctrl_1_shdw);
+
+	// Hack! EMIF2 config for TEB.
+	if (base == EMIF2_BASE) {
+		printf("Hack! EMIF2 config for TEB.\n");
+		writel(0x0020400A, &emif->emif_ddr_phy_ctrl_1_shdw);
+
+	} else
+		writel(regs->emif_ddr_phy_ctlr_1, &emif->emif_ddr_phy_ctrl_1_shdw);
 
 	if (omap_revision() >= OMAP5430_ES1_0) {
 		writel(EMIF_L3_CONFIG_VAL_SYS_10_MPU_5_LL_0,
@@ -238,15 +245,24 @@ static void ddr3_leveling(u32 base, const struct emif_regs *regs)
 		& EMIF_REG_LP_MODE_MASK), &emif->emif_pwr_mgmt_ctrl);
 	__udelay(130);
 
-	/*
-	 * Set invert_clkout (if activated)--DDR_PHYCTRL_1
-	 * Invert clock adds an additional half cycle delay on the command
-	 * interface.  The additional half cycle, is usually meant to enable
-	 * leveling in the situation that DQS is later than CK on the board.It
-	 * also helps provide some additional margin for leveling.
-	 */
-	writel(regs->emif_ddr_phy_ctlr_1, &emif->emif_ddr_phy_ctrl_1);
-	writel(regs->emif_ddr_phy_ctlr_1, &emif->emif_ddr_phy_ctrl_1_shdw);
+	// Hack! EMIF2 config for TEB.
+	if (base == EMIF2_BASE) {
+		printf("Hack! EMIF2 config for TEB.\n");
+		writel(0x0020400A, &emif->emif_ddr_phy_ctrl_1);
+		writel(0x0020400A, &emif->emif_ddr_phy_ctrl_1_shdw);
+
+	} else {
+		/*
+		 * Set invert_clkout (if activated)--DDR_PHYCTRL_1
+		 * Invert clock adds an additional half cycle delay on the command
+		 * interface.  The additional half cycle, is usually meant to enable
+		 * leveling in the situation that DQS is later than CK on the board.It
+		 * also helps provide some additional margin for leveling.
+		 */
+		writel(regs->emif_ddr_phy_ctlr_1, &emif->emif_ddr_phy_ctrl_1);
+		writel(regs->emif_ddr_phy_ctlr_1, &emif->emif_ddr_phy_ctrl_1_shdw);
+	}
+
 	__udelay(130);
 
 	writel(((LP_MODE_DISABLE << EMIF_REG_LP_MODE_SHIFT)
@@ -289,7 +305,13 @@ static void ddr3_init(u32 base, const struct emif_regs *regs)
 	 */
 	writel(regs->sdram_config_init, &emif->emif_sdram_config);
 
-	writel(regs->emif_ddr_phy_ctlr_1_init, &emif->emif_ddr_phy_ctrl_1);
+	// Hack! EMIF2 config for TEB.
+	if (base == EMIF2_BASE) {
+		printf("Hack! EMIF2 config for TEB.\n");
+		writel(0x0020400A, &emif->emif_ddr_phy_ctrl_1);
+
+	} else
+		writel(regs->emif_ddr_phy_ctlr_1_init, &emif->emif_ddr_phy_ctrl_1);
 
 	/* Update timing registers */
 	writel(regs->sdram_tim1, &emif->emif_sdram_tim_1);
@@ -304,9 +326,19 @@ static void ddr3_init(u32 base, const struct emif_regs *regs)
 
 	/* Configure external phy control timing registers */
 	for (i = 0; i < EMIF_EXT_PHY_CTRL_TIMING_REG; i++) {
-		writel(*ext_phy_ctrl_base, emif_ext_phy_ctrl_base++);
-		/* Update shadow registers */
-		writel(*ext_phy_ctrl_base++, emif_ext_phy_ctrl_base++);
+		// Hack! EMIF2 config for TEB.
+		if (i == 0 && base == EMIF2_BASE) {
+			printf("Hack! EMIF2 config for TEB.\n");
+			writel(0x04020080, emif_ext_phy_ctrl_base++);
+			/* Update shadow registers */
+			writel(0x04020080, emif_ext_phy_ctrl_base++);
+			ext_phy_ctrl_base++;
+
+		} else {
+			writel(*ext_phy_ctrl_base, emif_ext_phy_ctrl_base++);
+			/* Update shadow registers */
+			writel(*ext_phy_ctrl_base++, emif_ext_phy_ctrl_base++);
+		}
 	}
 
 	/*
