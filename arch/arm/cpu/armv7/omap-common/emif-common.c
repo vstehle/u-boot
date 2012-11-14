@@ -33,6 +33,27 @@
 #include <asm/utils.h>
 #include <linux/compiler.h>
 
+void hack_print_reg(const char *title)
+{
+	const struct {
+		const char *name;
+		void *address;
+	} t[] = {
+		{ "EMIF2 DDR_PHY_CTRL_1",		(void *)(&((struct emif_reg_struct *)EMIF2_BASE)->emif_ddr_phy_ctrl_1) },
+		{ "EMIF2 DDR_PHY_CTRL_1_SHDW",		(void *)(&((struct emif_reg_struct *)EMIF2_BASE)->emif_ddr_phy_ctrl_1_shdw) },
+		{ "EMIF2 DDR_EXT_PHY_CTLR_1",		(void *)(&((struct emif_reg_struct *)EMIF2_BASE)->emif_ddr_ext_phy_ctrl_1) },
+		{ "EMIF2 DDR_EXT_PHY_CTLR_1_SHDW",	(void *)(((u32 *)&((struct emif_reg_struct *)EMIF2_BASE)->emif_ddr_ext_phy_ctrl_1) + 1) },
+		{ NULL, NULL }	// EOT
+	}, *p;
+
+	printf("%s\n", title);
+
+	for (p = t; p->name; p++) {
+		u32 v = readl(p->address);
+		printf("@%08x: 0x%08x  ; %s\n", p->address, v, p->name);
+	}
+}
+
 void set_lpmode_selfrefresh(u32 base)
 {
 	struct emif_reg_struct *emif = (struct emif_reg_struct *)base;
@@ -230,6 +251,9 @@ static void ddr3_leveling(u32 base, const struct emif_regs *regs)
 
 	writel(((LP_MODE_DISABLE << EMIF_REG_LP_MODE_SHIFT)
 		& EMIF_REG_LP_MODE_MASK), &emif->emif_pwr_mgmt_ctrl);
+
+	if (base == EMIF2_BASE)
+		hack_print_reg("before leveling");
 
 	/* Launch Full leveling */
 	writel(DDR3_FULL_LVL, &emif->emif_rd_wr_lvl_ctl);
@@ -1343,5 +1367,6 @@ void sdram_init(void)
 			debug("get_ram_size() successful");
 	}
 
+	hack_print_reg("after sdram init");
 	debug("<<sdram_init()\n");
 }
