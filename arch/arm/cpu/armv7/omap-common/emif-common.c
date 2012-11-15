@@ -1272,6 +1272,9 @@ void dmm_init(u32 base)
 		writel(lisa_map_regs->dmm_lisa_map_0,
 			&hw_lisa_map_regs->dmm_lisa_map_0);
 	}
+
+	// Hack! Force interleaving of "high" memory on TEB.
+	writel(readl(0x482a2000) | 0x100, 0x482a2000);
 }
 
 /*

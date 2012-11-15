@@ -86,9 +86,9 @@ const struct emif_regs emif_regs_266_mhz_2cs = {
 	.emif_ddr_ext_phy_ctrl_5	= 0x04010040
 };
 
-const struct emif_regs emif_regs_ddr3_532_mhz_1cs = {
-	.sdram_config_init		= 0x61851B32,
-	.sdram_config			= 0x61851B32,
+const struct emif_regs emif_regs_ddr3_532_mhz_2cs = {
+	.sdram_config_init		= 0x61851B3a,
+	.sdram_config			= 0x61851B3a,
 	.ref_ctrl			= 0x00001035,
 	.sdram_tim1			= 0xCCCF36B3,
 	.sdram_tim2			= 0x308F7FDA,
@@ -163,7 +163,7 @@ const u32 ddr3_ext_phy_ctrl_const_base[EMIF_EXT_PHY_CTRL_CONST_REG] = {
 static void emif_get_reg_dump_sdp(u32 emif_nr, const struct emif_regs **regs)
 {
 	if (omap_revision() == OMAP5432_ES1_0)
-		*regs = &emif_regs_ddr3_532_mhz_1cs;
+		*regs = &emif_regs_ddr3_532_mhz_2cs;
 	else
 		*regs = &emif_regs_532_mhz_2cs;
 }
