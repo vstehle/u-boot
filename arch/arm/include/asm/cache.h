@@ -42,6 +42,7 @@ static inline void invalidate_l2_cache(void)
 void l2_cache_enable(void);
 void l2_cache_disable(void);
 void set_section_dcache(int section, enum dcache_option option);
+void __arm_setup_identity_mapping(void);
 
 /*
  * The current upper bound for ARM L1 data cache line sizes is 64 bytes.  We
