@@ -23,6 +23,8 @@
 
 #include <common.h>
 #include <asm/system.h>
+#include <asm/cache.h>
+#include <linux/compiler.h>
 
 #if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
 
@@ -39,6 +41,17 @@ void __arm_init_before_mmu(void)
 }
 void arm_init_before_mmu(void)
 	__attribute__((weak, alias("__arm_init_before_mmu")));
+
+void __arm_setup_identity_mapping(u32 *page_table)
+{
+	int i;
+
+	/* Set up an identity-mapping for all 4GB, rw for everyone */
+	for (i = 0; i < 4096; i++)
+		page_table[i] = i << 20 | (3 << 10) | 0x12;
+}
+__weak void arm_setup_identity_mapping(u32 *page_table)
+	__attribute__((alias("__arm_setup_identity_mapping")));
 
 static void cp_delay (void)
 {
@@ -72,9 +85,12 @@ static inline void mmu_setup(void)
 	u32 reg;
 
 	arm_init_before_mmu();
-	/* Set up an identity-mapping for all 4GB, rw for everyone */
-	for (i = 0; i < 4096; i++)
-		page_table[i] = i << 20 | (3 << 10) | 0x12;
+
+	/*
+	 * Set up an identity-mapping. Default version maps all 4GB rw for
+	 * everyone
+	 */
+	arm_setup_identity_mapping(page_table);
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
 		dram_bank_mmu_setup(i);

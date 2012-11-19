@@ -41,6 +41,7 @@ static inline void invalidate_l2_cache(void)
 
 void l2_cache_enable(void);
 void l2_cache_disable(void);
+void __arm_setup_identity_mapping(u32 *page_table);
 
 /*
  * The current upper bound for ARM L1 data cache line sizes is 64 bytes.  We
