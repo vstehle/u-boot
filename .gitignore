@@ -55,6 +55,7 @@
 /reloc_off
 
 /include/generated/
+/include/u-boot.lst
 asm-offsets.s
 
 # stgit generated dirs
