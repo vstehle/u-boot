@@ -275,7 +275,12 @@ void init_omap_revision(void)
 		}
 		break;
 	case MIDR_CORTEX_A15_R2P2:
-		*omap_si_rev = OMAP5430_ES2_0;
+		switch (readl(CONTROL_ID_CODE)) {
+		case OMAP5430_CONTROL_ID_CODE_ES2_0:
+		default:
+			*omap_si_rev = OMAP5430_ES2_0;
+			break;
+		}
 		break;
 	default:
 		*omap_si_rev = OMAP5430_SILICON_ID_INVALID;
