@@ -86,7 +86,6 @@ static void do_lpddr2_init(u32 base, u32 cs)
 	/* Wait till device auto initialization is complete */
 	while (get_mr(base, cs, LPDDR2_MR0) & LPDDR2_MR0_DAI_MASK)
 		;
-#endif
 	set_mr(base, cs, LPDDR2_MR10, MR10_ZQ_ZQINIT);
 	/*
 	 * tZQINIT = 1 us
@@ -94,7 +93,7 @@ static void do_lpddr2_init(u32 base, u32 cs)
 	 */
 
 	sdelay(2000);
-
+#endif 
 	if (omap_revision() >= OMAP5430_ES1_0)
 		set_mr(base, cs, LPDDR2_MR1, MR1_BL_8_BT_SEQ_WRAP_EN_NWR_8);
 	else
@@ -180,7 +179,7 @@ void emif_update_timings(u32 base, const struct emif_regs *regs)
 	writel(regs->temp_alert_config, &emif->emif_temp_alert_config);
 	writel(regs->emif_ddr_phy_ctlr_1, &emif->emif_ddr_phy_ctrl_1_shdw);
 
-	if (omap_revision() == OMAP5430_ES1_0) {
+	if (omap_revision() >= OMAP5430_ES1_0) {
 		writel(EMIF_L3_CONFIG_VAL_SYS_10_MPU_5_LL_0,
 			&emif->emif_l3_config);
 	} else if (omap_revision() >= OMAP4460_ES1_0) {
@@ -1108,7 +1107,7 @@ void emif_post_init_config(u32 base)
 	struct emif_reg_struct *emif = (struct emif_reg_struct *)base;
 	u32 omap_rev = omap_revision();
 
-	if (omap_rev == OMAP5430_ES1_0)
+	if (omap_rev >= OMAP5430_ES1_0)
 		return;
 
 	/* reset phy on ES2.0 */

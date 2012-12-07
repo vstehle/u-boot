@@ -46,7 +46,11 @@
 #define puts(s)
 #endif
 
+#ifdef CONFIG_OMAP5430_ES2
+struct omap5_es2_prcm_regs *const prcm = (struct omap5_es2_prcm_regs *)0x4A004100;
+#else
 struct omap5_prcm_regs *const prcm = (struct omap5_prcm_regs *)0x4A004100;
+#endif
 
 const u32 sys_clk_array[8] = {
 	12000000,	       /* 12 MHz */

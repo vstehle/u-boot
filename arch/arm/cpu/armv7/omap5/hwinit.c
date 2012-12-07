@@ -61,7 +61,7 @@ void do_io_settings(void)
 	struct omap_sys_ctrl_regs *ioregs_base =
 		      (struct omap_sys_ctrl_regs *) SYSCTRL_GENERAL_CORE_BASE;
 
-	if (omap_revision() <= OMAP5430_ES1_0){
+	if (omap_revision() != OMAP5432_ES1_0){
 		/* Impedance settings EMMC, C2C 1,2, hsi2 */
 		mask = (ds_mask << 2) | (ds_mask << 8) |
 			(ds_mask << 16) | (ds_mask << 18);
@@ -203,6 +203,9 @@ void init_omap_revision(void)
 			*omap_si_rev = OMAP5430_ES1_0;
 			break;
 		}
+		break;
+	case MIDR_CORTEX_A15_R2P2:
+		*omap_si_rev = OMAP5430_ES2_0;
 		break;
 	default:
 		*omap_si_rev = OMAP5430_SILICON_ID_INVALID;
