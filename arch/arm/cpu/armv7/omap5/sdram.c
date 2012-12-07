@@ -162,7 +162,7 @@ const u32 ddr3_ext_phy_ctrl_const_base[EMIF_EXT_PHY_CTRL_CONST_REG] = {
 
 static void emif_get_reg_dump_sdp(u32 emif_nr, const struct emif_regs **regs)
 {
-	if (omap_revision() == OMAP5432_ES1_0)
+	if ((omap_revision() == OMAP5432_ES1_0) || (omap_revision() == OMAP5432_ES2_0))
 		*regs = &emif_regs_ddr3_532_mhz_1cs;
 	else
 		*regs = &emif_regs_532_mhz_2cs;
