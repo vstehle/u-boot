@@ -30,6 +30,9 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+/* This is ES2 wakeup! */
+#define CONFIG_OMAP5430_ES2
+
 /*
  * High Level Configuration Options
  */
