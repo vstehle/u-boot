@@ -269,7 +269,7 @@ void scale_vcores(void)
 	omap_vc_init(PRM_VC_I2C_CHANNEL_FREQ_KHZ);
 
 	/* Palmas settings */
-	if (omap_revision() != OMAP5432_ES1_0) {
+	if ((omap_revision() != OMAP5432_ES1_0) && (omap_revision() != OMAP5432_ES2_0)) {
 		volt_core = VDD_CORE;
 		volt_mpu = VDD_MPU;
 		volt_mm = VDD_MM;
@@ -283,7 +283,7 @@ void scale_vcores(void)
 	do_scale_vcore(SMPS_REG_ADDR_12_MPU, volt_mpu);
 	do_scale_vcore(SMPS_REG_ADDR_45_IVA, volt_mm);
 
-	if (omap_revision() == OMAP5432_ES1_0) {
+	if ((omap_revision() == OMAP5432_ES1_0) || (omap_revision() == OMAP5432_ES2_0)) {
 		/* Configure LDO SRAM "magic" bits */
 		writel(2, &prcm->prm_sldo_core_setup);
 		writel(2, &prcm->prm_sldo_mpu_setup);

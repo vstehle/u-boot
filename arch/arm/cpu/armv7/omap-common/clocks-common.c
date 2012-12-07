@@ -299,7 +299,7 @@ static void setup_dplls(void)
 	 * Core DPLL will be locked after setting up EMIF
 	 * using the FREQ_UPDATE method(freq_update_core())
 	 */
-	if (omap_revision() != OMAP5432_ES1_0)
+	if ((omap_revision() != OMAP5432_ES1_0) && (omap_revision() != OMAP5432_ES2_0))
 		do_setup_dpll(&prcm->cm_clkmode_dpll_core, params,
 							DPLL_NO_LOCK, "core");
 	else
