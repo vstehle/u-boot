@@ -1096,7 +1096,7 @@ void emif_post_init_config(u32 base)
 	struct emif_reg_struct *emif = (struct emif_reg_struct *)base;
 	u32 omap_rev = omap_revision();
 
-	if (omap_rev == OMAP5430_ES1_0)
+	if (omap_rev >= OMAP5430_ES1_0)
 		return;
 
 	/* reset phy on ES2.0 */
