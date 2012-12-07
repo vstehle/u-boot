@@ -1077,7 +1077,7 @@ static void do_sdram_init(u32 base)
 	 * OPP to another)
 	 */
 	if (!(in_sdram || warm_reset())) {
-		if (omap_revision() != OMAP5432_ES1_0)
+		if ((omap_revision() != OMAP5432_ES1_0) && (omap_revision() != OMAP5432_ES2_0))
 			lpddr2_init(base, regs);
 		else
 			ddr3_init(base, regs);
@@ -1300,7 +1300,7 @@ void sdram_init(void)
 	debug("in_sdram = %d\n", in_sdram);
 
 	if (!(in_sdram || warm_reset())) {
-		if (omap_rev != OMAP5432_ES1_0)
+		if ((omap_rev != OMAP5432_ES1_0) && (omap_rev != OMAP5432_ES2_0))
 			bypass_dpll(&prcm->cm_clkmode_dpll_core);
 		else
 			writel(CM_DLL_CTRL_NO_OVERRIDE, &prcm->cm_dll_ctrl);
@@ -1318,11 +1318,11 @@ void sdram_init(void)
 	}
 
 	/* for the shadow registers to take effect */
-	if (omap_rev != OMAP5432_ES1_0)
+	if ((omap_rev != OMAP5432_ES1_0) && (omap_rev != OMAP5432_ES2_0))
 		freq_update_core();
 
 	/* Now is a good time to workaround faulty emif. */
-	if (omap_rev == OMAP5432_ES1_0 && !in_sdram)
+	if (((omap_rev == OMAP5432_ES1_0) || (omap_rev == OMAP5432_ES2_0)) && !in_sdram)
 		workaround_faulty_emif();
 
 	/* Do some testing after the init */
