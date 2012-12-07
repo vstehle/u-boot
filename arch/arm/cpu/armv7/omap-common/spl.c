@@ -102,6 +102,10 @@ static void jump_to_image_no_args(void)
 #if defined(CONFIG_WAKEUP)
 	image_entry = 0x80100000;
 #endif
+#if defined(CONFIG_ZEBU)
+	image_entry = CONFIG_SYS_TEXT_BASE;
+#endif
+	printf("@%x=%x\n", CONFIG_SYS_TEXT_BASE, *((int *) CONFIG_SYS_TEXT_BASE));
 	image_entry((u32 *)&boot_params);
 }
 
@@ -111,11 +115,14 @@ void board_init_r(gd_t *id, ulong dummy)
 	u32 boot_device;
 	debug(">>spl:board_init_r()\n");
 
-	mem_malloc_init(CONFIG_SYS_SPL_MALLOC_START,
+#ifndef CONFIG_ZEBU
+		mem_malloc_init(CONFIG_SYS_SPL_MALLOC_START,
 			CONFIG_SYS_SPL_MALLOC_SIZE);
+#endif
 	timer_init();
+#ifndef CONFIG_ZEBU
 	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
-
+#endif
 	boot_device = omap_boot_device();
 	debug("boot device - %d\n", boot_device);
 	switch (boot_device) {
@@ -132,8 +139,10 @@ void board_init_r(gd_t *id, ulong dummy)
 		break;
 #endif
 	default:
+#ifndef CONFIG_ZEBU
 		printf("SPL: Un-supported Boot Device - %d!!!\n", boot_device);
 		hang();
+#endif
 		break;
 	}
 

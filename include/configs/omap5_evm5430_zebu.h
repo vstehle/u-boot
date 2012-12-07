@@ -32,6 +32,7 @@
 /*
  * High Level Configuration Options
  */
+#define CONFIG_ARMV7		1	/* This is an ARM V7 CPU core */
 #define CONFIG_OMAP		1	/* in a TI OMAP core */
 #define CONFIG_OMAP54XX		1	/* which is a 54XX */
 #define CONFIG_OMAP5430		1	/* which is in a 5430 */
@@ -91,6 +92,9 @@
 #define CONFIG_BAUDRATE			3000000
 #define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600,\
 					115200}
+/* OPP SETTING*/
+#define OPP_NOM				1
+
 /* I2C  */
 #define CONFIG_SYS_I2C_SPEED		100000
 #define CONFIG_SYS_I2C_SLAVE		1
@@ -118,10 +122,10 @@
 #include <config_cmd_default.h>
 
 /* Enabled commands */
-#define CONFIG_CMD_EXT2		/* EXT2 Support                 */
-#define CONFIG_CMD_FAT		/* FAT support                  */
-#define CONFIG_CMD_I2C		/* I2C serial bus support	*/
-#define CONFIG_CMD_MMC		/* MMC support                  */
+#undef CONFIG_CMD_EXT2		/* EXT2 Support                 */
+#undef CONFIG_CMD_FAT		/* FAT support                  */
+#undef CONFIG_CMD_I2C		/* I2C serial bus support	*/
+#undef CONFIG_CMD_MMC		/* MMC support                  */
 #define CONFIG_CMD_SAVEENV
 
 /* Disabled commands */
@@ -245,9 +249,9 @@
 
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
 #define CONFIG_SPL_LIBDISK_SUPPORT
-#define CONFIG_SPL_I2C_SUPPORT
-#define CONFIG_SPL_MMC_SUPPORT
-#define CONFIG_SPL_FAT_SUPPORT
+#undef CONFIG_SPL_I2C_SUPPORT
+#undef CONFIG_SPL_MMC_SUPPORT
+#undef CONFIG_SPL_FAT_SUPPORT
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
 #define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_LDSCRIPT "arch/arm/cpu/armv7/omap-common/u-boot-spl.lds"
@@ -257,8 +261,8 @@
  * header. That is 0x800FFFC0--0x80100000 should not be used for any
  * other needs.
  */
-#define CONFIG_SYS_TEXT_BASE		0x80100000
-#define CONFIG_SYS_SPL_MALLOC_START     0x80200000
+#define CONFIG_SYS_TEXT_BASE		0x80e80000
+#define CONFIG_SYS_SPL_MALLOC_START     0x80700000
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000	/* 1 MB */
 
 #endif /* __CONFIG_H */
