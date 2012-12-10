@@ -283,12 +283,14 @@ void scale_vcores(void)
 	do_scale_vcore(SMPS_REG_ADDR_12_MPU, volt_mpu);
 	do_scale_vcore(SMPS_REG_ADDR_45_IVA, volt_mm);
 
+#ifndef CONFIG_OMAP5430_ES2	/* FIXME! */
 	if ((omap_revision() == OMAP5432_ES1_0) || (omap_revision() == OMAP5432_ES2_0)) {
 		/* Configure LDO SRAM "magic" bits */
 		writel(2, &prcm->prm_sldo_core_setup);
 		writel(2, &prcm->prm_sldo_mpu_setup);
 		writel(2, &prcm->prm_sldo_mm_setup);
 	}
+#endif
 }
 
 u32 get_offset_code(u32 volt_offset)
