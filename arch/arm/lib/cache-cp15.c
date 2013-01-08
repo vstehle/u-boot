@@ -36,6 +36,12 @@ void __arm_init_before_mmu(void)
 void arm_init_before_mmu(void)
 	__attribute__((weak, alias("__arm_init_before_mmu")));
 
+void __arm_init_domains(void)
+{
+}
+void arm_init_domains(void)
+	__attribute__((weak, alias("__arm_init_domains")));
+
 static void cp_delay (void)
 {
 	volatile int i;
@@ -120,6 +126,9 @@ static inline void mmu_setup(void)
 	/* Set the access control to all-supervisor */
 	asm volatile("mcr p15, 0, %0, c3, c0, 0"
 		     : : "r" (~0));
+
+	arm_init_domains();
+
 	/* and enable the mmu */
 	reg = get_cr();	/* get control reg. */
 	cp_delay();
