@@ -54,16 +54,21 @@ asm (
 		"ldr r12, =0x102\n"
 		"mov r0, pc\n"
 		"smc 0x1\n"
-		"ldr r1, =0x48281804\n" // AUX_CORE_BOOT_1
+		"ldr r1, =0x48281800\n" /* AUX_CORE_BOOT_0 */
 		"mov r2, #0\n"
-		"str r2, [r1]\n"
+		"str r2, [r1]\n"	/* AUX_CORE_BOOT_0 */
+		"str r2, [r1, #4]\n"	/* AUX_CORE_BOOT_1 */
 		"isb\n"
 		"dsb\n"
+		"mov r3, #0xf0\n"
 		"1: wfe\n"
-		"ldr r2, [r1]\n"
-		"cmp r2, #0\n"
-		"movne pc, r2\n"
-		"b 1b\n"
+		"ldr  r2, [r1]\n"	/* AUX_CORE_BOOT_0 */
+		"ands r2, r2, r3\n"
+		"beq  1b\n"
+		"ldr  r2, [r1, #4]\n"	/* AUX_CORE_BOOT_1 */
+		"cmp  r2, #0\n"
+		"beq  1b\n"
+		"bx   r2\n"
 	".popsection\n"
 );
 
@@ -280,7 +285,7 @@ void hyp_enable(void) {
 		"ldr r1, =0x48281800\n"     // AUX_CORE_BOOT_1
 		"ldr r2, =__hyp_init_sec\n"
 		"str r2, [r1, #4]\n"
-		"mov r2, #0x200\n"
+		"mov r2, #0x20\n"
 		"str r2, [r1]\n"            // AUX_CORE_BOOT_0
 		"isb\n"
 		"dmb\n"
