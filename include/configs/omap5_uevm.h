@@ -56,4 +56,6 @@
 
 #define CONFIG_SYS_PROMPT		"OMAP5430 EVM # "
 
+#define CONFIG_SYS_CLOCKS_ENABLE_ALL	1	/* Enable all clocks */
+
 #endif /* __CONFIG_OMAP5_EVM_H */
