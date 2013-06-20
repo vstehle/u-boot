@@ -219,4 +219,7 @@
 #define CONFIG_CMD_CACHE
 #endif
 
+#define CONFIG_CMD_MEMTEST
+#define CONFIG_SYS_ALT_MEMTEST
+
 #endif                         /* __MX6QSABRE_COMMON_CONFIG_H */
