@@ -114,9 +114,9 @@ void lcd_ctrl_init(void *lcdbase)
 	fb_start = gd->fb_base & ~(MMU_SECTION_SIZE - 1);
 	fb_end = gd->fb_base + msg_setup->allocate_buffer.body.resp.fb_size;
 	fb_end = ALIGN(fb_end, 1 << MMU_SECTION_SHIFT);
-	mmu_set_region_dcache_behaviour(fb_start, fb_end - fb_start,
-		DCACHE_WRITEBACK);
-	lcd_set_flush_dcache(1);
+//	mmu_set_region_dcache_behaviour(fb_start, fb_end - fb_start,
+//		DCACHE_WRITEBACK);
+//	lcd_set_flush_dcache(1);
 }
 
 void lcd_enable(void)
