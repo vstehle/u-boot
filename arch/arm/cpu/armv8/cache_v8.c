@@ -8,8 +8,6 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#define DEBUG
-
 #include <common.h>
 #include <asm/system.h>
 #include <asm/armv8/mmu.h>

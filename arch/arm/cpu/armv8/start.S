@@ -11,13 +11,6 @@
 #include <asm/macro.h>
 #include <asm/armv8/mmu.h>
 
-debug:	.macro	LETTER
-	stp     x0, x30, [sp,#-16]!
-	ldr	x0, =\LETTER
-	bl	dputc
-	ldp     x0, x30, [sp],#16
-	.endm
-
 /*************************************************************************
  *
  * Startup Code (reset vector)
@@ -26,22 +19,7 @@ debug:	.macro	LETTER
 
 .globl	_start
 _start:
-	debug	'S'
 	b	reset
-
-/*
- * w0: letter
- */
-dputc:
-	stp     x1, x2, [sp, #-16]!
-	ldr	x1, =0x3f215040
-
-1:	ldr	w2, [x1, #20]
-	tbz     w2, #5, 1b
-
-	str	w0, [x1]
-	ldp     x1, x2, [sp], #16
-	ret
 
 #ifdef CONFIG_ENABLE_ARM_SOC_BOOT0_HOOK
 /*
@@ -75,7 +53,6 @@ _bss_end_ofs:
 	.quad	__bss_end - _start
 
 reset:
-	debug	'R'
 #ifdef CONFIG_SYS_RESET_SCTRL
 	bl reset_sctrl
 #endif
@@ -85,8 +62,7 @@ reset:
 	 */
 	adr	x0, vectors
 	switch_el x1, 3f, 2f, 1f
-3:	debug	'3'
-	msr	vbar_el3, x0
+3:	msr	vbar_el3, x0
 	mrs	x0, scr_el3
 	orr	x0, x0, #0xf			/* SCR_EL3.NS|IRQ|FIQ|EA */
 	msr	scr_el3, x0
@@ -96,16 +72,14 @@ reset:
 	msr	cntfrq_el0, x0			/* Initialize CNTFRQ */
 #endif
 	b	0f
-2:	debug	'2'
-	msr	vbar_el2, x0
+2:	msr	vbar_el2, x0
 	mov	x0, #0x33ff
 	msr	cptr_el2, x0			/* Enable FP/SIMD */
 	b	0f
-1:	debug	'1'
-	msr	vbar_el1, x0
+1:	msr	vbar_el1, x0
 	mov	x0, #3 << 20
 	msr	cpacr_el1, x0			/* Enable FP/SIMD */
-0:	debug	'0'
+0:
 
 	/* Apply ARM core specific erratas */
 	bl	apply_core_errata
@@ -131,7 +105,6 @@ reset:
 	 * Slave CPUs
 	 */
 slave_cpu:
-	debug	's'
 	wfe
 	ldr	x1, =CPU_RELEASE_ADDR
 	ldr	x0, [x1]
@@ -139,12 +112,10 @@ slave_cpu:
 	br	x0			/* branch to the given address */
 #endif /* CONFIG_ARMV8_MULTIENTRY */
 master_cpu:
-	debug	'M'
 	bl	_main
 
 #ifdef CONFIG_SYS_RESET_SCTRL
 reset_sctrl:
-	debug	'r'
 	switch_el x1, 3f, 2f, 1f
 3:
 	mrs	x0, sctlr_el3
@@ -179,7 +150,7 @@ reset_sctrl:
 /*-----------------------------------------------------------------------*/
 
 WEAK(apply_core_errata)
-	debug	'E'
+
 	mov	x29, lr			/* Save LR */
 	/* For now, we support Cortex-A57 specific errata only */
 
@@ -240,7 +211,6 @@ ENDPROC(apply_core_errata)
 /*-----------------------------------------------------------------------*/
 
 WEAK(lowlevel_init)
-	debug	'I'
 	mov	x29, lr			/* Save LR */
 
 #if defined(CONFIG_GICV2) || defined(CONFIG_GICV3)
