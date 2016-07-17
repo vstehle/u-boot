@@ -274,10 +274,15 @@ int stdio_add_devices(void)
 			printf("Failed to probe keyboard '%s'\n", dev->name);
 	}
 #endif
+
+	printf("stdio_add_devices\n");
+
 #ifdef CONFIG_SYS_I2C
+	printf("calling i2c_init_all\n");
 	i2c_init_all();
 #else
 #if defined(CONFIG_HARD_I2C)
+	printf("calling i2c_init\n");
 	i2c_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 #endif
 #endif
@@ -295,30 +300,40 @@ int stdio_add_devices(void)
 		printf("%s: Video device failed (ret=%d)\n", __func__, ret);
 #else
 # if defined(CONFIG_LCD)
+	printf("calling drv_lcd_init\n");
 	drv_lcd_init ();
 # endif
 # if defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE)
+	printf("calling drv_video_init\n");
 	drv_video_init ();
 # endif
 #endif /* CONFIG_DM_VIDEO */
 #if defined(CONFIG_KEYBOARD) && !defined(CONFIG_DM_KEYBOARD)
+	printf("calling drv_keyboard_init\n");
 	drv_keyboard_init ();
 #endif
 #ifdef CONFIG_LOGBUFFER
+	printf("calling drv_logbuff_init\n");
 	drv_logbuff_init ();
 #endif
+	printf("calling drv_system_init\n");
 	drv_system_init ();
+	printf("calling serial_stdio_init\n");
 	serial_stdio_init ();
 #ifdef CONFIG_USB_TTY
+	printf("calling drv_usbtty_init\n");
 	drv_usbtty_init ();
 #endif
 #ifdef CONFIG_NETCONSOLE
+	printf("calling drv_nc_init\n");
 	drv_nc_init ();
 #endif
 #ifdef CONFIG_JTAG_CONSOLE
+	printf("calling drv_jtag_console_init\n");
 	drv_jtag_console_init ();
 #endif
 #ifdef CONFIG_CBMEM_CONSOLE
+	printf("calling cbmemc_init\n");
 	cbmemc_init();
 #endif
 
