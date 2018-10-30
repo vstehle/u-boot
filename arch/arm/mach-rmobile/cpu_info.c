@@ -76,7 +76,7 @@ static const struct {
 
 static int rmobile_cpuinfo_idx(void)
 {
-	int i = 0;
+	unsigned int i = 0;
 	u32 cpu_type = rmobile_get_cpu_type();
 
 	for (; i < ARRAY_SIZE(rmobile_cpuinfo); i++)
