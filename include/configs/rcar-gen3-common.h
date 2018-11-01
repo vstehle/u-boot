@@ -59,7 +59,8 @@
 /* ENV setting */
 
 #define CONFIG_EXTRA_ENV_SETTINGS	\
-	"bootm_size=0x10000000\0"
+	"bootm_size=0x10000000\0"	\
+	"usb_pgood_delay=2000\0"
 
 #define CONFIG_BOOTCOMMAND	\
 	"tftp 0x48080000 Image; " \
