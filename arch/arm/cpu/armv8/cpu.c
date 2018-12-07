@@ -37,6 +37,13 @@ void __weak board_cleanup_before_linux(void){}
 
 int cleanup_before_linux(void)
 {
+#if defined(CONFIG_RCAR_GEN3)
+	/*
+	 * Take action again that could not be handled
+	 * by device_remove() processing
+	 */
+	board_cleanup_before_linux();
+#endif
 	/*
 	 * this function is called just before we call linux
 	 * it prepares the processor for linux
