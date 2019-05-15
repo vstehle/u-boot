@@ -54,6 +54,11 @@ config R8A77995
 	imply CLK_R8A77995
 	imply PINCTRL_PFC_R8A77995
 
+config R8A774A1
+	bool "Renesas SoC R8A774A1"
+	imply CLK_R8A774A1
+	imply PINCTRL_PFC_R8A774A1
+
 endmenu
 
 choice
@@ -111,6 +116,11 @@ config TARGET_ULCB
 	help
           Support for Renesas R-Car Gen3 ULCB platform
 
+config TARGET_HIHOPE_RZG2M
+	bool "HiHope RZ/G2M board"
+	help
+          Support for RZG2M HiHope platform
+
 endchoice
 
 config SYS_SOC
@@ -123,6 +133,7 @@ source "board/renesas/ebisu/Kconfig"
 source "board/renesas/salvator-x/Kconfig"
 source "board/renesas/ulcb/Kconfig"
 source "board/beacon/beacon-rzg2m/Kconfig"
+source "board/renesas/hihope-rzg2m/Kconfig"
 
 config MULTI_DTB_FIT_UNCOMPRESS_SZ
 	default 0x80000 if TARGET_SALVATOR_X
