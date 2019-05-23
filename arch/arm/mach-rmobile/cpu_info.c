@@ -66,6 +66,7 @@ static const struct {
 	{ RMOBILE_CPU_TYPE_R8A7794, "R8A7794" },
 	{ RMOBILE_CPU_TYPE_R8A7795, "R8A7795" },
 	{ RMOBILE_CPU_TYPE_R8A7796, "R8A7796" },
+	{ RMOBILE_CPU_TYPE_R8A774A1, "R8A774A1" },
 	{ RMOBILE_CPU_TYPE_R8A77965, "R8A77965" },
 	{ RMOBILE_CPU_TYPE_R8A77970, "R8A77970" },
 	{ RMOBILE_CPU_TYPE_R8A77980, "R8A77980" },
@@ -78,6 +79,14 @@ static int rmobile_cpuinfo_idx(void)
 {
 	unsigned int i = 0;
 	u32 cpu_type = rmobile_get_cpu_type();
+
+	if (cpu_type == RMOBILE_CPU_TYPE_R8A774A1) {
+		if ((rmobile_get_cpu_rev_integer() == 1) &&
+		    (rmobile_get_cpu_rev_fraction() == 1)) {
+			printf("CPU: Renesas Electronics R8A774A1 rev 1.1/rev 1.2\n");
+			return 0;
+		}
+	}
 
 	for (; i < ARRAY_SIZE(rmobile_cpuinfo); i++)
 		if (rmobile_cpuinfo[i].cpu_type == cpu_type)
