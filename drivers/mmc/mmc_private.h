@@ -17,6 +17,10 @@ int mmc_send_status(struct mmc *mmc, unsigned int *status);
 int mmc_poll_for_busy(struct mmc *mmc, int timeout);
 
 int mmc_set_blocklen(struct mmc *mmc, int len);
+#if !CONFIG_IS_ENABLED(MMC_TINY)
+int sd_select_mode_and_width(struct mmc *mmc, uint card_caps);
+int mmc_select_mode_and_width(struct mmc *mmc, uint card_caps);
+#endif
 
 #if CONFIG_IS_ENABLED(BLK)
 ulong mmc_bread(struct udevice *dev, lbaint_t start, lbaint_t blkcnt,

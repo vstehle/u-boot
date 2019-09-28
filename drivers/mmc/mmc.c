@@ -1726,7 +1726,7 @@ static const struct mode_width_tuning sd_modes_by_pref[] = {
 	     mwt++) \
 		if (caps & MMC_CAP(mwt->mode))
 
-static int sd_select_mode_and_width(struct mmc *mmc, uint card_caps)
+int sd_select_mode_and_width(struct mmc *mmc, uint card_caps)
 {
 	int err;
 	uint widths[] = {MMC_MODE_4BIT, MMC_MODE_1BIT};
@@ -2060,7 +2060,7 @@ static int mmc_select_hs400es(struct mmc *mmc)
 	    ecbv++) \
 		if ((ddr == ecbv->is_ddr) && (caps & ecbv->cap))
 
-static int mmc_select_mode_and_width(struct mmc *mmc, uint card_caps)
+int mmc_select_mode_and_width(struct mmc *mmc, uint card_caps)
 {
 	int err;
 	const struct mode_width_tuning *mwt;

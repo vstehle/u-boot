@@ -2,6 +2,8 @@
 /*
  * (C) Copyright 2012 Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj@renesas.com>
  * (C) Copyright 2012 Renesas Solutions Corp.
+ * [r8a774a1 revision specific]
+ * (C) Copyright 2019 Renesas Electronics Corporation
  */
 #include <common.h>
 #include <cpu_func.h>
@@ -101,11 +103,25 @@ int arch_misc_init(void)
 {
 	int i, idx = rmobile_cpuinfo_idx();
 	char cpu[10] = { 0 };
+	u16 cut_ver;
 
 	for (i = 0; i < sizeof(cpu); i++)
 		cpu[i] = tolower(rmobile_cpuinfo[idx].cpu_name[i]);
 
 	env_set("platform", cpu);
+
+	i = rmobile_cpuinfo_idx();
+	if ((rmobile_cpuinfo[i].cpu_type == RMOBILE_CPU_TYPE_R8A774A1) &&
+		(rmobile_get_cpu_rev_integer() == 1) &&
+		(rmobile_get_cpu_rev_fraction() == 1))
+	{
+		cut_ver = 0x12;
+	}
+	else
+	{
+		cut_ver = (rmobile_get_cpu_rev_integer() * 0x10) + rmobile_get_cpu_rev_fraction();
+	}
+	env_set_hex("cut_ver", cut_ver);
 
 	return 0;
 }
