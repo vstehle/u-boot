@@ -1,0 +1,12 @@
+if TARGET_DESIGNSTART_CA5
+
+config SYS_BOARD
+      default "designstart"
+
+config SYS_VENDOR
+      default "armltd"
+
+config SYS_CONFIG_NAME
+      default "designstart_ca5"
+
+endif
