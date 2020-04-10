@@ -76,6 +76,7 @@
 #ifdef CONFIG_EFI_SETUP_EARLY
 #include <efi_loader.h>
 #endif
+#include <vsprintf.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -556,9 +557,23 @@ static int should_load_env(void)
 
 static int initr_env(void)
 {
+	unsigned int watchdog_timeout = 0;
+	char *timeout;
+	bool flag = false;
+
 	/* initialize environment */
-	if (should_load_env())
+	if (should_load_env()) {
 		env_relocate();
+		/* Check if already have wdt_timeout in environment? */
+		if (env_get("wdt_timeout") != NULL) {
+			flag = true;
+			timeout = env_get("wdt_timeout");
+			watchdog_timeout = simple_strtoul(timeout, NULL, 10);
+#ifdef CONFIG_WDT_RENESAS
+			rwdt_set_timeout(watchdog_timeout, flag);
+#endif
+		}
+	}
 	else
 		env_set_default(NULL, 0);
 
