@@ -256,6 +256,12 @@ config CMD_BOOTZ
 	help
 	  Boot the Linux zImage
 
+config CMD_BOOTX
+	bool "Support booting XiP Kernel Image"
+	default y
+	help
+	  The bootx command is used to boot an XIP kernel.
+
 config CMD_BOOTI
 	bool "booti"
 	depends on ARM64 || RISCV
@@ -265,7 +271,7 @@ config CMD_BOOTI
 
 config BOOTM_LINUX
 	bool "Support booting Linux OS images"
-	depends on CMD_BOOTM || CMD_BOOTZ || CMD_BOOTI
+	depends on CMD_BOOTM || CMD_BOOTZ || CMD_BOOTI || CMD_BOOTX
 	default y
 	help
 	  Support booting the Linux kernel directly via a command such as bootm

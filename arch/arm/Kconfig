@@ -628,6 +628,12 @@ config ARCH_BCM6858
 	select OF_CONTROL
 	imply CMD_DM
 
+config TARGET_CORSTONE700
+	bool "Support Corstone700"
+	select CPU_V7A
+	select SEMIHOSTING
+	select PL01X_SERIAL
+
 config TARGET_DESIGNSTART_CA5
       bool "Support Designstart Cortex-A5"
       select CPU_V7A
@@ -1789,6 +1795,7 @@ source "board/armadeus/apf27/Kconfig"
 source "board/armltd/vexpress/Kconfig"
 source "board/armltd/vexpress64/Kconfig"
 source "board/armltd/designstart/Kconfig"
+source "board/armltd/corstone700/Kconfig"
 source "board/broadcom/bcm23550_w1d/Kconfig"
 source "board/broadcom/bcm28155_ap/Kconfig"
 source "board/broadcom/bcm963158/Kconfig"

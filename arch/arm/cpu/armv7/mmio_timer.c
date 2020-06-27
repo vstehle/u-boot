@@ -11,8 +11,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define CNTCTLBASE    0x1a020000UL
-#define CNTREADBASE   0x1a030000UL
+#define CNTCTLBASE	V2M_COUNTER_CTL
+#define CNTREADBASE	V2M_COUNTER_READ
 
 static inline uint32_t mmio_read32(uintptr_t addr)
 {

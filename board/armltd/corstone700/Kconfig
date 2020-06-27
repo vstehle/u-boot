@@ -1,0 +1,13 @@
+if TARGET_CORSTONE700
+
+config SYS_BOARD
+	default "corstone700"
+
+config SYS_VENDOR
+	default "armltd"
+
+config SYS_CONFIG_NAME
+	default "corstone700"
+
+endif
+
