@@ -68,7 +68,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define UCMD_RESET		(1 << 1) /* controller reset */
 
 #if defined(CONFIG_MX6) || defined(CONFIG_MX7ULP)
-static const unsigned phy_bases[] = {
+static const ulong phy_bases[] = {
 	USB_PHY0_BASE_ADDR,
 #if defined(USB_PHY1_BASE_ADDR)
 	USB_PHY1_BASE_ADDR,
@@ -241,7 +241,7 @@ struct usbnc_regs {
 
 static void usb_power_config(int index)
 {
-	struct usbnc_regs *usbnc = (struct usbnc_regs *)(USB_BASE_ADDR +
+	struct usbnc_regs *usbnc = (struct usbnc_regs *)(uintptr_t)(USB_BASE_ADDR +
 			(0x10000 * index) + USBNC_OFFSET);
 	void __iomem *phy_cfg2 = (void __iomem *)(&usbnc->phy_cfg2);
 
@@ -254,7 +254,7 @@ static void usb_power_config(int index)
 
 int usb_phy_mode(int port)
 {
-	struct usbnc_regs *usbnc = (struct usbnc_regs *)(USB_BASE_ADDR +
+	struct usbnc_regs *usbnc = (struct usbnc_regs *)(uintptr_t)(USB_BASE_ADDR +
 			(0x10000 * port) + USBNC_OFFSET);
 	void __iomem *status = (void __iomem *)(&usbnc->phy_status);
 	u32 val;
@@ -286,11 +286,11 @@ static void ehci_mx6_powerup_fixup(struct ehci_ctrl *ctrl, uint32_t *status_reg,
 static void usb_oc_config(int index)
 {
 #if defined(CONFIG_MX6)
-	struct usbnc_regs *usbnc = (struct usbnc_regs *)(USB_BASE_ADDR +
+	struct usbnc_regs *usbnc = (struct usbnc_regs *)(uintptr_t)(USB_BASE_ADDR +
 			USB_OTHERREGS_OFFSET);
 	void __iomem *ctrl = (void __iomem *)(&usbnc->ctrl[index]);
 #elif defined(CONFIG_MX7) || defined(CONFIG_MX7ULP)
-	struct usbnc_regs *usbnc = (struct usbnc_regs *)(USB_BASE_ADDR +
+	struct usbnc_regs *usbnc = (struct usbnc_regs *)(uintptr_t)(USB_BASE_ADDR +
 			(0x10000 * index) + USBNC_OFFSET);
 	void __iomem *ctrl = (void __iomem *)(&usbnc->ctrl1);
 #endif
@@ -395,7 +395,7 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 #elif defined(CONFIG_MX7) || defined(CONFIG_MX7ULP)
 	u32 controller_spacing = 0x10000;
 #endif
-	struct usb_ehci *ehci = (struct usb_ehci *)(USB_BASE_ADDR +
+	struct usb_ehci *ehci = (struct usb_ehci *)(uintptr_t)(USB_BASE_ADDR +
 		(controller_spacing * index));
 	int ret;
 
@@ -419,8 +419,8 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 	type = board_usb_phy_mode(index);
 
 	if (hccr && hcor) {
-		*hccr = (struct ehci_hccr *)((uint32_t)&ehci->caplength);
-		*hcor = (struct ehci_hcor *)((uint32_t)*hccr +
+		*hccr = (struct ehci_hccr *)((uintptr_t)&ehci->caplength);
+		*hcor = (struct ehci_hcor *)((uintptr_t)*hccr +
 				HC_LENGTH(ehci_readl(&(*hccr)->cr_capbase)));
 	}
 
@@ -652,8 +652,8 @@ static int ehci_usb_probe(struct udevice *dev)
 
 	mdelay(10);
 
-	hccr = (struct ehci_hccr *)((uint32_t)&ehci->caplength);
-	hcor = (struct ehci_hcor *)((uint32_t)hccr +
+	hccr = (struct ehci_hccr *)((uintptr_t)&ehci->caplength);
+	hcor = (struct ehci_hcor *)((uintptr_t)hccr +
 			HC_LENGTH(ehci_readl(&(hccr)->cr_capbase)));
 
 	return ehci_register(dev, hccr, hcor, &mx6_ehci_ops, 0, priv->init_type);
