@@ -2,6 +2,7 @@
 /*
  * Copyright (c) 2009 Daniel Mack <daniel@caiaq.de>
  * Copyright (C) 2010 Freescale Semiconductor, Inc.
+ *
  */
 
 #include <common.h>
@@ -19,6 +20,7 @@
 #include <asm/mach-imx/sys_proto.h>
 #include <dm.h>
 #include <asm/mach-types.h>
+#include <power-domain.h>
 #include <power/regulator.h>
 #include <linux/iopoll.h>
 #include <linux/usb/otg.h>
@@ -568,6 +570,20 @@ static int ehci_usb_phy_mode(struct udevice *dev)
 						       "reg");
 		if ((fdt_addr_t)addr == FDT_ADDR_T_NONE)
 			return -EINVAL;
+
+		/* Need to power on the PHY before access it */
+#if CONFIG_IS_ENABLED(POWER_DOMAIN)
+		struct udevice phy_dev;
+		struct power_domain pd;
+		int ret;
+
+		phy_dev.node = offset_to_ofnode(phy_off);
+		if (!power_domain_get(&phy_dev, &pd)) {
+			ret = power_domain_on(&pd);
+			if (ret)
+				return ret;
+		}
+#endif
 
 		phy_ctrl = (void __iomem *)(addr + USBPHY_CTRL);
 		val = readl(phy_ctrl);
