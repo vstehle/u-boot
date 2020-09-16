@@ -67,7 +67,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define UCMD_RUN_STOP           (1 << 0) /* controller run/stop */
 #define UCMD_RESET		(1 << 1) /* controller reset */
 
-#if defined(CONFIG_MX6) || defined(CONFIG_MX7ULP)
+#if defined(CONFIG_MX6) || defined(CONFIG_MX7ULP) || defined(CONFIG_IMX8)
 static const ulong phy_bases[] = {
 	USB_PHY0_BASE_ADDR,
 #if defined(USB_PHY1_BASE_ADDR)
@@ -101,7 +101,44 @@ static void usb_power_config(int index)
 		   &usbphy->usb1_chrg_detect);
 
 	scg_enable_usb_pll(true);
+#elif defined(CONFIG_IMX8)
+	struct usbphy_regs __iomem *usbphy = (struct usbphy_regs __iomem *)USB_PHY0_BASE_ADDR;
+	int ret;
+	u32 val;
 
+	if (index > 0)
+		return;
+
+	writel(ANADIG_USB2_CHRG_DETECT_EN_B | ANADIG_USB2_CHRG_DETECT_CHK_CHRG_B,
+	       &usbphy->usb1_chrg_detect);
+
+	if (!(readl(&usbphy->usb1_pll_480_ctrl) & PLL_USB_LOCK_MASK)) {
+
+		/* Enable the regulator first */
+		writel(PLL_USB_REG_ENABLE_MASK, &usbphy->usb1_pll_480_ctrl_set);
+
+		/* Wait at least 25us */
+		udelay(25);
+
+		/* Enable the power */
+		writel(PLL_USB_PWR_MASK, &usbphy->usb1_pll_480_ctrl_set);
+
+		/* Wait lock */
+		ret = readl_poll_sleep_timeout(&usbphy->usb1_pll_480_ctrl, val,
+					       val & PLL_USB_LOCK_MASK, 10, 1000000);
+
+		if (ret) {
+			/* If timeout, we power down the pll */
+			writel(PLL_USB_PWR_MASK, &usbphy->usb1_pll_480_ctrl_clr);
+			return;
+		}
+	}
+
+	/* Clear the bypass */
+	writel(PLL_USB_BYPASS_MASK, &usbphy->usb1_pll_480_ctrl_clr);
+
+	/* Enable the PLL clock out to USB */
+	writel((PLL_USB_EN_USB_CLKS_MASK | PLL_USB_ENABLE_MASK), &usbphy->usb1_pll_480_ctrl_set);
 #else
 	struct anatop_regs __iomem *anatop =
 		(struct anatop_regs __iomem *)ANATOP_BASE_ADDR;
@@ -213,6 +250,20 @@ struct usbnc_regs {
 	u32 reserve0[2];
 	u32 hsic_ctrl;
 };
+#elif defined(CONFIG_IMX8)
+struct usbnc_regs {
+	u32 ctrl1;
+	u32 ctrl2;
+	u32 reserve1[10];
+	u32 phy_cfg1;
+	u32 phy_cfg2;
+	u32 reserve2;
+	u32 phy_status;
+	u32 reserve3[4];
+	u32 adp_cfg1;
+	u32 adp_cfg2;
+	u32 adp_status;
+};
 #else
 /* Base address for this IP block is 0x02184800 */
 struct usbnc_regs {
@@ -289,7 +340,7 @@ static void usb_oc_config(int index)
 	struct usbnc_regs *usbnc = (struct usbnc_regs *)(uintptr_t)(USB_BASE_ADDR +
 			USB_OTHERREGS_OFFSET);
 	void __iomem *ctrl = (void __iomem *)(&usbnc->ctrl[index]);
-#elif defined(CONFIG_MX7) || defined(CONFIG_MX7ULP)
+#elif defined(CONFIG_MX7) || defined(CONFIG_MX7ULP) || defined(CONFIG_IMX8)
 	struct usbnc_regs *usbnc = (struct usbnc_regs *)(uintptr_t)(USB_BASE_ADDR +
 			(0x10000 * index) + USBNC_OFFSET);
 	void __iomem *ctrl = (void __iomem *)(&usbnc->ctrl1);
@@ -373,7 +424,7 @@ int ehci_mx6_common_init(struct usb_ehci *ehci, int index)
 	usb_power_config(index);
 	usb_oc_config(index);
 
-#if defined(CONFIG_MX6) || defined(CONFIG_MX7ULP)
+#if defined(CONFIG_MX6) || defined(CONFIG_MX7ULP) || defined(CONFIG_IMX8)
 	usb_internal_phy_clock_gate(index, 1);
 	usb_phy_enable(index, ehci);
 #endif
@@ -392,7 +443,7 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 	enum usb_init_type type;
 #if defined(CONFIG_MX6)
 	u32 controller_spacing = 0x200;
-#elif defined(CONFIG_MX7) || defined(CONFIG_MX7ULP)
+#elif defined(CONFIG_MX7) || defined(CONFIG_MX7ULP) || defined(CONFIG_IMX8)
 	u32 controller_spacing = 0x10000;
 #endif
 	struct usb_ehci *ehci = (struct usb_ehci *)(uintptr_t)(USB_BASE_ADDR +
@@ -506,7 +557,7 @@ static int ehci_usb_phy_mode(struct udevice *dev)
 	 * About fsl,usbphy, Refer to
 	 * Documentation/devicetree/bindings/usb/ci-hdrc-usb2.txt.
 	 */
-	if (is_mx6() || is_mx7ulp()) {
+	if (is_mx6() || is_mx7ulp() || is_imx8()) {
 		phy_off = fdtdec_lookup_phandle(blob,
 						offset,
 						"fsl,usbphy");
