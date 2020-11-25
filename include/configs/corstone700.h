@@ -71,4 +71,8 @@
 
 #define CONFIG_BOOTCOMMAND	"bootx $kernel_addr_r $fdt_addr_r"
 
+//#define CONFIG_SYS_MAX_FLASH_BANKS	64
+//#define CONFIG_SYS_FLASH_CFI
+//#define CONFIG_SYS_FLASH_BASE		0x08000000
+
 #endif
