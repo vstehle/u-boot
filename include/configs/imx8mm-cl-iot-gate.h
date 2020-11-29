@@ -186,5 +186,7 @@
 
 /* USB */
 #define	CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
-
+#define USB1_BASE_ADDR          0x32E40000
+#define USB2_BASE_ADDR          0x32E50000
+#define USB_BASE_ADDR           USB1_BASE_ADDR
 #endif
