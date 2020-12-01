@@ -332,8 +332,12 @@ static unsigned long shb_write(struct udevice *dev, unsigned long start,
 		return -1;
 	}
 
-	// TODO! write
-	debug("%s: ERROR! not implemented\n", __func__);
+	ret = smh_write(priv->fd, buffer, blkcnt * ATA_BLOCKSIZE);
+	if (ret) {
+		debug("%s: ERROR! smh_write %ld\n", __func__, ret);
+		return -1;
+	}
+
 	return -1;
 }
 
