@@ -160,6 +160,9 @@ void dev_print (struct blk_desc *dev_desc)
 	case IF_TYPE_UNKNOWN:
 		puts("device type unknown\n");
 		return;
+	case IF_TYPE_SHB:
+		printf("Semihosting Block Device\n");
+		break;
 	default:
 		printf("Unhandled device type: %i\n", dev_desc->if_type);
 		return;
@@ -287,6 +290,9 @@ static void print_part_header(const char *type, struct blk_desc *dev_desc)
 		break;
 	case IF_TYPE_VIRTIO:
 		puts("VirtIO");
+		break;
+	case IF_TYPE_SHB:
+		puts("Semihosting");
 		break;
 	default:
 		puts ("UNKNOWN");
