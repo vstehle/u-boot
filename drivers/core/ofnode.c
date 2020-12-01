@@ -106,7 +106,9 @@ const char *ofnode_read_string(ofnode node, const char *propname)
 	const char *str = NULL;
 	int len = -1;
 
-	assert(ofnode_valid(node));
+	if(!ofnode_valid(node))
+		return NULL;
+
 	debug("%s: %s: ", __func__, propname);
 
 	if (ofnode_is_np(node)) {
