@@ -37,6 +37,14 @@ ssize_t os_read(int fd, void *buf, size_t count);
 ssize_t os_write(int fd, const void *buf, size_t count);
 
 /**
+ * Access to the OS fstat() system call
+ *
+ * \param fd	File descriptor as returned by os_open()
+ * \return st_size
+ */
+off_t os_fdsize(int fd);
+
+/**
  * Access to the OS lseek() system call
  *
  * \param fd	File descriptor as returned by os_open()

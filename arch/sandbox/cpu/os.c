@@ -43,6 +43,18 @@ ssize_t os_write(int fd, const void *buf, size_t count)
 	return write(fd, buf, count);
 }
 
+off_t os_fdsize(int fd)
+{
+	struct stat s;
+	int ret;
+
+	ret = fstat(fd, &s);
+	if (ret)
+		return 0;
+
+	return s.st_size;
+}
+
 off_t os_lseek(int fd, off_t offset, int whence)
 {
 	if (whence == OS_SEEK_SET)
