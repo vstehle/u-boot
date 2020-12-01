@@ -13,6 +13,7 @@
 
 #define SYSOPEN		0x01
 #define SYSCLOSE	0x02
+#define SYSWRITE	0x05
 #define SYSREAD		0x06
 #define SYSSEEK		0x0A
 #define SYSFLEN		0x0C
@@ -42,6 +43,12 @@ struct smh_seek_s {
 struct smh_read_s {
 	long fd;
 	void *memp;
+	size_t len;
+};
+
+struct smh_write_s {
+	long fd;
+	const void *memp;
 	size_t len;
 };
 
@@ -110,6 +117,17 @@ static noinline long smh_trap(unsigned int sysnum, void *addr)
 		result = (ret == s->len) ? 0 : -1;
 		break;
 	}
+
+	case SYSWRITE: {
+		const struct smh_write_s *s = addr;
+		ssize_t ret;
+
+		debug("os_write %ld %p %ld\n", s->fd, s->memp, s->len);
+		ret = os_write(s->fd, s->memp, s->len);
+		result = (ret == s->len) ? 0 : -1;
+		break;
+	}
+
 
 	default:
 		assert(!"bad sysnum");
@@ -201,6 +219,30 @@ static long smh_read(long fd, void *memp, size_t len)
 		 * hard to maintain partial read loops and such, just fail
 		 * with an error message.
 		 */
+		printf("%s: ERROR ret %ld, fd %ld, len %zu memp %p\n",
+		       __func__, ret, fd, len, memp);
+		return -1;
+	}
+
+	return 0;
+}
+
+/*
+ * Write 'len' bytes to file from 'memp'. Returns 0 on success, else failure
+ */
+static long smh_write(long fd, const void *memp, size_t len)
+{
+	long ret;
+	struct smh_write_s write;
+
+	debug("%s: fd %ld, memp %p, len %zu\n", __func__, fd, memp, len);
+
+	write.fd = fd;
+	write.memp = memp;
+	write.len = len;
+
+	ret = smh_trap(SYSWRITE, &write);
+	if (ret < 0) {
 		printf("%s: ERROR ret %ld, fd %ld, len %zu memp %p\n",
 		       __func__, ret, fd, len, memp);
 		return -1;
