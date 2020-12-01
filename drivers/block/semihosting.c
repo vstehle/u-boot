@@ -338,7 +338,7 @@ static unsigned long shb_write(struct udevice *dev, unsigned long start,
 		return -1;
 	}
 
-	return -1;
+	return blkcnt;
 }
 
 static int shb_probe(struct udevice *udev)
