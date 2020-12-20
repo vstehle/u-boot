@@ -88,6 +88,13 @@
 	pinctrl-0 = <&pinctrl_i2c2>;
 	status = "okay";
 
+	rtc@69 {
+		compatible = "abracon,ab1805";
+		reg = <0x69>;
+		pagesize = <16>;
+		status = "okay";
+	};
+
 	pmic@4b {
 		compatible = "rohm,bd71837";
 		reg = <0x4b>;
