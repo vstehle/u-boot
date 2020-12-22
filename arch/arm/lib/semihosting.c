@@ -4,8 +4,8 @@
  */
 
 /*
- * Minimal semihosting implementation for reading files into memory. If more
- * features like writing files or console output are required they can be
+ * Minimal semihosting implementation for reading and writing files into
+ * memory. If more features like console output are required they can be
  * added later. This code has been tested on arm64/aarch64 fastmodel only.
  * An untested placeholder exists for armv7 architectures, but since they
  * are commonly available in silicon now, fastmodel usage makes less sense
@@ -18,6 +18,7 @@
 
 #define SYSOPEN		0x01
 #define SYSCLOSE	0x02
+#define SYSWRITE	0x05
 #define SYSREAD		0x06
 #define SYSFLEN		0x0C
 
@@ -116,6 +117,34 @@ static long smh_read(long fd, void *memp, size_t len)
 }
 
 /*
+ * Write 'len' bytes of 'memp' into file. Returns 0 on success, else failure
+ */
+static long smh_write(long fd, const void *memp, size_t len)
+{
+	long ret;
+	struct smh_write_s {
+		long fd;
+		const void *memp;
+		size_t len;
+	} write;
+
+	debug("%s: fd %ld, memp %p, len %zu\n", __func__, fd, memp, len);
+
+	write.fd = fd;
+	write.memp = memp;
+	write.len = len;
+
+	ret = smh_trap(SYSWRITE, &write);
+	if (ret != 0) {
+		printf("%s: ERROR ret %ld, fd %ld, len %zu memp %p\n",
+		       __func__, ret, fd, len, memp);
+		return -1;
+	}
+
+	return 0;
+}
+
+/*
  * Close the file using the file descriptor
  */
 static long smh_close(long fd)
@@ -182,6 +211,33 @@ static int smh_load_file(const char * const name, ulong load_addr,
 	return 0;
 }
 
+static int smh_save_file(const char * const name, ulong save_addr,
+			 ulong len)
+{
+	long fd;
+	long ret;
+
+	fd = smh_open(name, "wb");
+	if (fd == -1)
+		return -1;
+
+	ret = smh_write(fd, (const void *)save_addr, len);
+	smh_close(fd);
+
+	if (ret == 0) {
+		printf("saved file %s from %08lX to %08lX, %08lX bytes\n",
+		       name,
+		       save_addr,
+		       save_addr + len - 1,
+		       len);
+	} else {
+		printf("write failed\n");
+		return 0;
+	}
+
+	return 0;
+}
+
 static int do_smhload(struct cmd_tbl *cmdtp, int flag, int argc,
 		      char *const argv[])
 {
@@ -210,9 +266,35 @@ static int do_smhload(struct cmd_tbl *cmdtp, int flag, int argc,
 	return 0;
 }
 
+static int do_smhsave(struct cmd_tbl *cmdtp, int flag, int argc,
+		      char *const argv[])
+{
+	if (argc == 3 || argc == 4) {
+		ulong load_addr;
+		ulong end_addr = 0;
+		int ret;
+		char end_str[64];
+
+		load_addr = simple_strtoul(argv[2], NULL, 16);
+		if (!load_addr)
+			return -1;
+
+		ret = smh_save_file(argv[1], load_addr, &end_addr);
+		if (ret < 0)
+			return CMD_RET_FAILURE;
+	} else {
+		return CMD_RET_USAGE;
+	}
+	return 0;
+}
+
 U_BOOT_CMD(smhload, 4, 0, do_smhload, "load a file using semihosting",
 	   "<file> 0x<address> [end var]\n"
 	   "    - load a semihosted file to the address specified\n"
 	   "      if the optional [end var] is specified, the end\n"
 	   "      address of the file will be stored in this environment\n"
 	   "      variable.\n");
+
+U_BOOT_CMD(smhsave, 4, 0, do_smhsave, "save a file using semihosting",
+	   "<file> 0x<address> <len>\n"
+	   "    - save a semihosted file from the address specified\n");
