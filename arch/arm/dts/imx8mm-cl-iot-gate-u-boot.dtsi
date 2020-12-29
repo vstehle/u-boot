@@ -102,6 +102,10 @@
 	u-boot,dm-spl;
 };
 
+&i2c1 {
+	u-boot,dm-spl;
+};
+
 &i2c2 {
 	u-boot,dm-spl;
 };

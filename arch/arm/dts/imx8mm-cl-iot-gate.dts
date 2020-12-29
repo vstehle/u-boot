@@ -80,6 +80,12 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_i2c1>;
 	status = "okay";
+
+	eeprom@54 {
+		  compatible = "atmel,24c08";
+		  reg = <0x54>;
+		  pagesize = <16>;
+	};
 };
 
 &i2c2 {
