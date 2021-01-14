@@ -746,6 +746,7 @@ static int ehci_usb_bind(struct udevice *dev)
 	 *
 	 * dev->req_seq = (addr - USB_BASE_ADDR) / controller_spacing;
 	 */
+	/* TODO: PaulLiu: We cannot use the code anymore.
 	if (dev->req_seq == -1) {
 		if (IS_ENABLED(CONFIG_MX6))
 			controller_spacing = 0x200;
@@ -755,6 +756,7 @@ static int ehci_usb_bind(struct udevice *dev)
 
 		dev->req_seq = (addr - USB_BASE_ADDR) / controller_spacing;
 	}
+	*/
 
 	return 0;
 }
@@ -778,7 +780,7 @@ static int ehci_usb_probe(struct udevice *dev)
 	}
 
 	priv->ehci = ehci;
-	priv->portnr = dev->req_seq;
+	priv->portnr = 0; // TODO: PaulLiu: always set to 0 is wrong.
 
 	/* Init usb board level according to the requested init type */
 	ret = board_usb_init(priv->portnr, type);
@@ -843,13 +845,14 @@ static int ehci_usb_probe(struct udevice *dev)
 int ehci_usb_remove(struct udevice *dev)
 {
 	struct ehci_mx6_priv_data *priv = dev_get_priv(dev);
-	struct usb_platdata *plat = dev_get_platdata(dev);
+	struct usb_platdata *plat = dev_get_plat(dev);
 
 	ehci_deregister(dev);
 
-	plat->init_type = 0; /* Clean the requested usb type to host mode */
+	//plat->init_type = 0; /* Clean the requested usb type to host mode */
 
-	return board_usb_cleanup(dev->req_seq, priv->init_type);
+	/* TODO: PaulLiu: always assign port 0 is wrong */
+	return board_usb_cleanup(0, priv->init_type);
 }
 
 static const struct udevice_id mx6_usb_ids[] = {
