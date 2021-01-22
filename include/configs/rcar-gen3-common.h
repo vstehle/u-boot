@@ -68,7 +68,7 @@
 	"booti 0x48080000 - 0x48000000"
 
 /* SPL support */
-#if defined(CONFIG_R8A7795) || defined(CONFIG_R8A7796) || defined(CONFIG_R8A77965)
+#if defined(CONFIG_R8A7795) || defined(CONFIG_R8A7796) || defined(CONFIG_R8A77965) || defined(CONFIG_R8A774A1)
 #define CONFIG_SPL_BSS_START_ADDR	0xe633f000
 #define CONFIG_SPL_BSS_MAX_SIZE		0x1000
 #else

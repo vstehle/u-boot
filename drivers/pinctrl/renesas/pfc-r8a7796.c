@@ -6165,31 +6165,6 @@ static const struct sh_pfc_soc_operations r8a7796_pinmux_ops = {
 	.set_bias = r8a7796_pinmux_set_bias,
 };
 
-#ifdef CONFIG_PINCTRL_PFC_R8A774A1
-const struct sh_pfc_soc_info r8a774a1_pinmux_info = {
-	.name = "r8a774a1_pfc",
-	.ops = &r8a7796_pinmux_ops,
-	.unlock_reg = 0xe6060000, /* PMMR */
-
-	.function = { PINMUX_FUNCTION_BEGIN, PINMUX_FUNCTION_END },
-
-	.pins = pinmux_pins,
-	.nr_pins = ARRAY_SIZE(pinmux_pins),
-	.groups = pinmux_groups.common,
-	.nr_groups = ARRAY_SIZE(pinmux_groups.common),
-	.functions = pinmux_functions.common,
-	.nr_functions = ARRAY_SIZE(pinmux_functions.common),
-
-	.cfg_regs = pinmux_config_regs,
-	.drive_regs = pinmux_drive_regs,
-	.bias_regs = pinmux_bias_regs,
-	.ioctrl_regs = pinmux_ioctrl_regs,
-
-	.pinmux_data = pinmux_data,
-	.pinmux_data_size = ARRAY_SIZE(pinmux_data),
-};
-#endif
-
 #ifdef CONFIG_PINCTRL_PFC_R8A7796
 const struct sh_pfc_soc_info r8a7796_pinmux_info = {
 	.name = "r8a77960_pfc",

@@ -85,7 +85,6 @@ static const struct cpg_core_clk r8a774a1_core_clks[] = {
 	DEF_FIXED("s0d6",       R8A774A1_CLK_S0D6,  CLK_S0,         6, 1),
 	DEF_FIXED("s0d8",       R8A774A1_CLK_S0D8,  CLK_S0,         8, 1),
 	DEF_FIXED("s0d12",      R8A774A1_CLK_S0D12, CLK_S0,        12, 1),
-	DEF_FIXED("s1d1",       R8A774A1_CLK_S1D1,  CLK_S1,         1, 1),
 	DEF_FIXED("s1d2",       R8A774A1_CLK_S1D2,  CLK_S1,         2, 1),
 	DEF_FIXED("s1d4",       R8A774A1_CLK_S1D4,  CLK_S1,         4, 1),
 	DEF_FIXED("s2d1",       R8A774A1_CLK_S2D1,  CLK_S2,         1, 1),
