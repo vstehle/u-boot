@@ -108,10 +108,10 @@ extern char * strswab(const char *);
 #endif
 
 #ifndef __HAVE_ARCH_MEMSET
-extern void * memset(void *,int,__kernel_size_t);
+extern void * memset(void *,int,size_t);
 #endif
 #ifndef __HAVE_ARCH_MEMCPY
-extern void * memcpy(void *,const void *,__kernel_size_t);
+extern void * memcpy(void *,const void *,size_t);
 #endif
 #ifndef __HAVE_ARCH_MEMMOVE
 extern void * memmove(void *,const void *,__kernel_size_t);
