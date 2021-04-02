@@ -137,6 +137,20 @@ config TARGET_IMX8MM_CL_IOT_GATE
 	select IMX8MM
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
+
+config TARGET_IMX8MP_RSB3720A1_4G
+	bool "Support i.MX8MP RSB3720A1 4G"
+	select BINMAN
+	select IMX8MP
+	select SUPPORT_SPL
+	select IMX8M_LPDDR4
+
+config TARGET_IMX8MP_RSB3720A1_6G
+	bool "Support i.MX8MP RSB3720A1 6G"
+	select BINMAN
+	select IMX8MP
+	select SUPPORT_SPL
+	select IMX8M_LPDDR4
 endchoice
 
 source "board/beacon/imx8mm/Kconfig"
@@ -147,6 +161,7 @@ source "board/freescale/imx8mq_evk/Kconfig"
 source "board/freescale/imx8mm_evk/Kconfig"
 source "board/freescale/imx8mn_evk/Kconfig"
 source "board/freescale/imx8mp_evk/Kconfig"
+source "board/freescale/imx8mp_rsb3720a1/Kconfig"
 source "board/gateworks/venice/Kconfig"
 source "board/google/imx8mq_phanbell/Kconfig"
 source "board/phytec/phycore_imx8mm/Kconfig"
