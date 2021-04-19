@@ -36,6 +36,8 @@
 		serial1 = &uart2;
 		serial2 = &uart3;
 		serial3 = &uart4;
+		usb0 = &usb_dwc3_0;
+		usb1 = &usb_dwc3_1;
 	};
 
 	cpus {
@@ -131,6 +133,36 @@
 		#clock-cells = <0>;
 		clock-frequency= <133000000>;
 		clock-output-names = "clk_ext4";
+	};
+
+	power-domains {
+		compatible = "simple-bus";
+
+		/* HSIO SS */
+		hsiomix_pd: hsiomix-pd {
+			compatible = "fsl,imx8m-pm-domain";
+			active-wakeup;
+			rpm-always-on;
+			#power-domain-cells = <0>;
+			domain-index = <0>;
+			domain-name = "hsiomix";
+		};
+
+		usb_otg1_pd: usbotg1-pd {
+			compatible = "fsl,imx8m-pm-domain";
+			#power-domain-cells = <0>;
+			domain-index = <2>;
+			domain-name = "usb_otg1";
+			parent-domains = <&hsiomix_pd>;
+		};
+
+		usb_otg2_pd: usbotg2-pd {
+			compatible = "fsl,imx8m-pm-domain";
+			#power-domain-cells = <0>;
+			domain-index = <3>;
+			domain-name = "usb_otg2";
+			parent-domains = <&hsiomix_pd>;
+		};
 	};
 
 	pmu {
@@ -788,5 +820,41 @@
 			reg = <0x3d800000 0x400000>;
 			interrupts = <GIC_SPI 98 IRQ_TYPE_LEVEL_HIGH>;
 		};
+	};
+
+	usb_dwc3_0: usb@38100000 {
+		compatible = "fsl,imx8mq-dwc3", "snps,dwc3";
+		reg = <0x0 0x38100000 0x0 0x10000>;
+		interrupts = <GIC_SPI 40 IRQ_TYPE_LEVEL_HIGH>;
+		phys = <&usb3_phy0>, <&usb3_phy0>;
+		phy-names = "usb2-phy", "usb3-phy";
+		usb3-resume-missing-cas;
+		snps,power-down-scale = <2>;
+		status = "disabled";
+	};
+
+	usb3_phy0: usb-phy@381f0040 {
+		compatible = "fsl,imx8mq-usb-phy";
+		reg = <0x0 0x381f0040 0x0 0x40>;
+		#phy-cells = <0>;
+		status = "disabled";
+	};
+
+	usb_dwc3_1: usb@38200000 {
+		compatible = "fsl,imx8mq-dwc3", "snps,dwc3";
+		reg = <0x0 0x38200000 0x0 0x10000>;
+		interrupts = <GIC_SPI 41 IRQ_TYPE_LEVEL_HIGH>;
+		phys = <&usb3_phy1>, <&usb3_phy1>;
+		phy-names = "usb2-phy", "usb3-phy";
+		usb3-resume-missing-cas;
+		snps,power-down-scale = <2>;
+		status = "disabled";
+	};
+
+	usb3_phy1: usb-phy@382f0040 {
+		compatible = "fsl,imx8mq-usb-phy";
+		reg = <0x0 0x382f0040 0x0 0x40>;
+		#phy-cells = <0>;
+		status = "disabled";
 	};
 };
