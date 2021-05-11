@@ -226,7 +226,6 @@
 	};
 
 	usbphynop1: usbphynop1 {
-		#phy-cells = <0>;
 		compatible = "usb-nop-xceiv";
 		clocks = <&clk IMX8MM_CLK_USB_PHY_REF>;
 		assigned-clocks = <&clk IMX8MM_CLK_USB_PHY_REF>;
@@ -235,7 +234,6 @@
 	};
 
 	usbphynop2: usbphynop2 {
-		#phy-cells = <0>;
 		compatible = "usb-nop-xceiv";
 		clocks = <&clk IMX8MM_CLK_USB_PHY_REF>;
 		assigned-clocks = <&clk IMX8MM_CLK_USB_PHY_REF>;
@@ -985,16 +983,15 @@
 			ranges = <0x32c00000 0x32c00000 0x400000>;
 
 			usbotg1: usb@32e40000 {
-				compatible = "fsl,imx8mm-usb", "fsl,imx7d-usb";
+				compatible = "fsl,imx8mm-usb", "fsl,imx7d-usb", "fsl,imx27-usb";
 				reg = <0x32e40000 0x200>;
 				interrupts = <GIC_SPI 40 IRQ_TYPE_LEVEL_HIGH>;
 				clocks = <&clk IMX8MM_CLK_USB1_CTRL_ROOT>;
 				clock-names = "usb1_ctrl_root_clk";
 				assigned-clocks = <&clk IMX8MM_CLK_USB_BUS>;
 				assigned-clock-parents = <&clk IMX8MM_SYS_PLL2_500M>;
-				phys = <&usbphynop1>;
+				fsl,usbphy = <&usbphynop1>;
 				fsl,usbmisc = <&usbmisc1 0>;
-				power-domains = <&pgc_otg1>;
 				status = "disabled";
 			};
 
@@ -1005,16 +1002,15 @@
 			};
 
 			usbotg2: usb@32e50000 {
-				compatible = "fsl,imx8mm-usb", "fsl,imx7d-usb";
+				compatible = "fsl,imx8mm-usb", "fsl,imx7d-usb", "fsl,imx27-usb";
 				reg = <0x32e50000 0x200>;
 				interrupts = <GIC_SPI 41 IRQ_TYPE_LEVEL_HIGH>;
 				clocks = <&clk IMX8MM_CLK_USB1_CTRL_ROOT>;
 				clock-names = "usb1_ctrl_root_clk";
 				assigned-clocks = <&clk IMX8MM_CLK_USB_BUS>;
 				assigned-clock-parents = <&clk IMX8MM_SYS_PLL2_500M>;
-				phys = <&usbphynop2>;
+				fsl,usbphy = <&usbphynop2>;
 				fsl,usbmisc = <&usbmisc2 0>;
-				power-domains = <&pgc_otg2>;
 				status = "disabled";
 			};
 
