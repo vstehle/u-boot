@@ -452,12 +452,12 @@ efi_status_t EFIAPI efi_update_capsule(
 	EFI_ENTRY("%p, %zu, %llu\n", capsule_header_array, capsule_count,
 		  scatter_gather_list);
 
-	if (!capsule_count) {
-		ret = EFI_INVALID_PARAMETER;
+	ret = efi_valid_update_capsule_params(capsule_header_array,
+					      capsule_count,
+					      scatter_gather_list);
+	if (ret != EFI_SUCCESS)
 		goto out;
-	}
 
-	ret = EFI_SUCCESS;
 	for (i = 0, capsule = *capsule_header_array; i < capsule_count;
 	     i++, capsule = *(++capsule_header_array)) {
 		/* sanity check */

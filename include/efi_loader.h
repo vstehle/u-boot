@@ -865,6 +865,30 @@ extern const struct efi_firmware_management_protocol efi_fmp_fit;
 extern const struct efi_firmware_management_protocol efi_fmp_raw;
 
 /* Capsule update */
+static inline efi_status_t
+efi_valid_update_capsule_params(struct efi_capsule_header
+						**capsule_header_array,
+				efi_uintn_t capsule_count,
+				u64 scatter_gather_list)
+{
+	u32 flags;
+
+	if (!capsule_count)
+		return EFI_INVALID_PARAMETER;
+
+	flags = capsule_header_array[0]->flags;
+
+	if (((flags & CAPSULE_FLAGS_PERSIST_ACROSS_RESET) &&
+	     !scatter_gather_list) ||
+	    ((flags & CAPSULE_FLAGS_POPULATE_SYSTEM_TABLE) &&
+	     !(flags & CAPSULE_FLAGS_PERSIST_ACROSS_RESET)) ||
+	    ((flags & CAPSULE_FLAGS_INITIATE_RESET) &&
+	     !(flags & CAPSULE_FLAGS_PERSIST_ACROSS_RESET)))
+		return EFI_INVALID_PARAMETER;
+
+	return EFI_SUCCESS;
+}
+
 efi_status_t EFIAPI efi_update_capsule(
 		struct efi_capsule_header **capsule_header_array,
 		efi_uintn_t capsule_count,

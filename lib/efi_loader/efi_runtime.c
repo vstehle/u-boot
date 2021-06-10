@@ -467,6 +467,14 @@ efi_status_t __efi_runtime EFIAPI efi_update_capsule_unsupported(
 			efi_uintn_t capsule_count,
 			u64 scatter_gather_list)
 {
+	efi_status_t ret;
+
+	ret = efi_valid_update_capsule_params(capsule_header_array,
+					      capsule_count,
+					      scatter_gather_list);
+	if (ret != EFI_SUCCESS)
+		return ret;
+
 	return EFI_UNSUPPORTED;
 }
 
