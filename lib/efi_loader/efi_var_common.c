@@ -160,6 +160,10 @@ efi_status_t EFIAPI efi_query_variable_info(
 	EFI_ENTRY("%x %p %p %p", attributes, maximum_variable_storage_size,
 		  remaining_variable_storage_size, maximum_variable_size);
 
+	if (!attributes || ((attributes & EFI_VARIABLE_RUNTIME_ACCESS) &&
+			    !(attributes & EFI_VARIABLE_BOOTSERVICE_ACCESS)))
+		return EFI_EXIT(EFI_INVALID_PARAMETER);
+
 	ret = efi_query_variable_info_int(attributes,
 					  maximum_variable_storage_size,
 					  remaining_variable_storage_size,
