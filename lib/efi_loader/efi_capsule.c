@@ -632,6 +632,8 @@ static efi_status_t find_boot_device(void)
 		ret = get_dp_device(boot_var16, &boot_dev);
 		if (ret == EFI_SUCCESS) {
 			if (device_is_present_and_system_part(boot_dev)) {
+			/* If device is present retrieveing the file node before exiting*/
+				bootdev_root = efi_file_from_path(boot_dev);
 				goto out;
 			} else {
 				efi_free_pool(boot_dev);
