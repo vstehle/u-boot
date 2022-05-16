@@ -1,19 +1,22 @@
 # SPDX-License-Identifier:      GPL-2.0+
 # Copyright (c) 2021, Linaro Limited
-# Author: AKASHI Takahiro <takahiro.akashi@linaro.org>
+# Copyright (c) 2022, Arm Limited
+# Author: AKASHI Takahiro <takahiro.akashi@linaro.org>,
+#         adapted to FIT images by Vincent Stehlé <vincent.stehle@arm.com>
 #
-# U-Boot UEFI: Firmware Update (Signed capsule) Test
+# U-Boot UEFI: Firmware Update (Signed capsule with FIT images) Test
 
 """
 This test verifies capsule-on-disk firmware update
-with signed capsule files
+with signed capsule files containing FIT images
 """
 
 import pytest
 from capsule_defs import CAPSULE_DATA_DIR, CAPSULE_INSTALL_DIR
 
-@pytest.mark.boardspec('sandbox')
-@pytest.mark.buildconfigspec('efi_capsule_firmware_raw')
+@pytest.mark.boardspec('sandbox64')
+@pytest.mark.boardspec('sandbox_flattree')
+@pytest.mark.buildconfigspec('efi_capsule_firmware_fit')
 @pytest.mark.buildconfigspec('efi_capsule_authenticate')
 @pytest.mark.buildconfigspec('dfu')
 @pytest.mark.buildconfigspec('dfu_sf')
@@ -23,11 +26,11 @@ from capsule_defs import CAPSULE_DATA_DIR, CAPSULE_INSTALL_DIR
 @pytest.mark.buildconfigspec('cmd_nvedit_efi')
 @pytest.mark.buildconfigspec('cmd_sf')
 @pytest.mark.slow
-class TestEfiCapsuleFirmwareSigned(object):
+class TestEfiCapsuleFirmwareSignedFit(object):
     def test_efi_capsule_auth1(
             self, u_boot_config, u_boot_console, efi_capsule_data):
         """
-        Test Case 1 - Update U-Boot on SPI Flash, raw image format
+        Test Case 1 - Update U-Boot on SPI Flash, FIT image format
                       0x100000-0x150000: U-Boot binary (but dummy)
 
                       If the capsule is properly signed, the authentication
@@ -57,11 +60,11 @@ class TestEfiCapsuleFirmwareSigned(object):
 
             # place a capsule file
             output = u_boot_console.run_command_list([
-                'fatload host 0:1 4000000 %s/Test11' % CAPSULE_DATA_DIR,
-                'fatwrite host 0:1 4000000 %s/Test11 $filesize'
+                'fatload host 0:1 4000000 %s/Test13' % CAPSULE_DATA_DIR,
+                'fatwrite host 0:1 4000000 %s/Test13 $filesize'
                         % CAPSULE_INSTALL_DIR,
                 'fatls host 0:1 %s' % CAPSULE_INSTALL_DIR])
-            assert 'Test11' in ''.join(output)
+            assert 'Test13' in ''.join(output)
 
         # reboot
         mnt_point = u_boot_config.persistent_data_dir + '/test_efi_capsule'
@@ -81,7 +84,7 @@ class TestEfiCapsuleFirmwareSigned(object):
                             '0x50000;u-boot-env raw 0x150000 0x200000"',
                     'host bind 0 %s' % disk_img,
                     'fatls host 0:1 %s' % CAPSULE_INSTALL_DIR])
-                assert 'Test11' in ''.join(output)
+                assert 'Test13' in ''.join(output)
 
                 # need to run uefi command to initiate capsule handling
                 output = u_boot_console.run_command(
@@ -90,7 +93,7 @@ class TestEfiCapsuleFirmwareSigned(object):
             output = u_boot_console.run_command_list([
                 'host bind 0 %s' % disk_img,
                 'fatls host 0:1 %s' % CAPSULE_INSTALL_DIR])
-            assert 'Test11' not in ''.join(output)
+            assert 'Test13' not in ''.join(output)
 
             output = u_boot_console.run_command_list([
                 'sf probe 0:0',
@@ -101,7 +104,7 @@ class TestEfiCapsuleFirmwareSigned(object):
     def test_efi_capsule_auth2(
             self, u_boot_config, u_boot_console, efi_capsule_data):
         """
-        Test Case 2 - Update U-Boot on SPI Flash, raw image format
+        Test Case 2 - Update U-Boot on SPI Flash, FIT image format
                       0x100000-0x150000: U-Boot binary (but dummy)
 
                       If the capsule is signed but with an invalid key,
@@ -132,11 +135,11 @@ class TestEfiCapsuleFirmwareSigned(object):
 
             # place a capsule file
             output = u_boot_console.run_command_list([
-                'fatload host 0:1 4000000 %s/Test12' % CAPSULE_DATA_DIR,
-                'fatwrite host 0:1 4000000 %s/Test12 $filesize'
+                'fatload host 0:1 4000000 %s/Test14' % CAPSULE_DATA_DIR,
+                'fatwrite host 0:1 4000000 %s/Test14 $filesize'
                                 % CAPSULE_INSTALL_DIR,
                 'fatls host 0:1 %s' % CAPSULE_INSTALL_DIR])
-            assert 'Test12' in ''.join(output)
+            assert 'Test14' in ''.join(output)
 
         # reboot
         mnt_point = u_boot_config.persistent_data_dir + '/test_efi_capsule'
@@ -156,7 +159,7 @@ class TestEfiCapsuleFirmwareSigned(object):
                         '0x50000;u-boot-env raw 0x150000 0x200000"',
                     'host bind 0 %s' % disk_img,
                     'fatls host 0:1 %s' % CAPSULE_INSTALL_DIR])
-                assert 'Test12' in ''.join(output)
+                assert 'Test14' in ''.join(output)
 
                 # need to run uefi command to initiate capsule handling
                 output = u_boot_console.run_command(
@@ -166,7 +169,7 @@ class TestEfiCapsuleFirmwareSigned(object):
             output = u_boot_console.run_command_list([
                 'host bind 0 %s' % disk_img,
                 'fatls host 0:1 %s' % CAPSULE_INSTALL_DIR])
-            assert 'Test12' not in ''.join(output)
+            assert 'Test14' not in ''.join(output)
 
             # TODO: check CapsuleStatus in CapsuleXXXX
 
@@ -179,7 +182,7 @@ class TestEfiCapsuleFirmwareSigned(object):
     def test_efi_capsule_auth3(
             self, u_boot_config, u_boot_console, efi_capsule_data):
         """
-        Test Case 3 - Update U-Boot on SPI Flash, raw image format
+        Test Case 3 - Update U-Boot on SPI Flash, FIT image format
                       0x100000-0x150000: U-Boot binary (but dummy)
 
                       If the capsule is not signed, the authentication
