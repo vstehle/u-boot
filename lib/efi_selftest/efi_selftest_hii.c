@@ -605,6 +605,16 @@ static int test_hii_database_get_package_list_handle(void)
 		goto out;
 	}
 
+	/* Invalid package list handle. */
+	driver_handle = NULL;
+	ret = hii_database_protocol->get_package_list_handle(
+			hii_database_protocol, NULL, &driver_handle);
+	if (ret != EFI_INVALID_PARAMETER) {
+		efi_st_error("get_package_list_handle returned %u not invalid\n",
+			     (unsigned int)ret);
+		goto out;
+	}
+
 	result = EFI_ST_SUCCESS;
 
 out:
