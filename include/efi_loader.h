@@ -692,6 +692,8 @@ efi_status_t efi_set_timer(struct efi_event *event, enum efi_timer_delay type,
 			   uint64_t trigger_time);
 /* Call this to signal an event */
 void efi_signal_event(struct efi_event *event);
+/* Check if a pointer is a valid event */
+efi_status_t efi_is_event(const struct efi_event *event);
 
 /* return true if the device is removable */
 bool efi_disk_is_removable(efi_handle_t handle);

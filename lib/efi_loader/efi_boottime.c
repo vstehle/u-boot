@@ -678,7 +678,7 @@ efi_status_t efi_delete_handle(efi_handle_t handle)
  *
  * Return: status code
  */
-static efi_status_t efi_is_event(const struct efi_event *event)
+efi_status_t efi_is_event(const struct efi_event *event)
 {
 	const struct efi_event *evt;
 
