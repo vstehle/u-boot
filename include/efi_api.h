@@ -1545,6 +1545,74 @@ struct efi_ip4_service_binding {
 			efi_handle_t child_handle);
 };
 
+#define EFI_IP4_CONFIG2_PROTOCOL_GUID \
+	EFI_GUID(0x5b446ed1, 0xe30b, 0x4faa, \
+		 0x87, 0x1a, 0x36, 0x54, 0xec, 0xa3, 0x60, 0x80)
+
+enum efi_ip4_config2_data_type {
+	EFI_DATA_INTERFACE_INFO = 0,
+	EFI_DATA_POLICY = 1,
+	EFI_DATA_MANUAL_ADDRESS = 2,
+	EFI_DATA_GATEWAY = 3,
+	EFI_DATA_DNS_SERVER = 4,
+	EFI_DATA_MAXIMUM = 5
+};
+
+enum efi_ip4_config2_policy {
+	EFI_POLICY_STATIC = 0,
+	EFI_POLICY_DHCP = 1,
+	EFI_POLICY_MAX = 2
+};
+
+struct efi_ip4_config2 {
+	efi_status_t (EFIAPI *set_data)(struct efi_ip4_config2 *this,
+			enum efi_ip4_config2_data_type data_type,
+			efi_uintn_t data_size, const void *data);
+	efi_status_t (EFIAPI *get_data)(const struct efi_ip4_config2 *this,
+			enum efi_ip4_config2_data_type data_type,
+			efi_uintn_t *data_size, void *data);
+	efi_status_t (EFIAPI *register_data_notify)(
+			struct efi_ip4_config2 *this,
+			enum efi_ip4_config2_data_type data_type,
+			struct efi_event *event);
+	efi_status_t (EFIAPI *unregister_data_notify)(
+			struct efi_ip4_config2 *this,
+			enum efi_ip4_config2_data_type data_type,
+			struct efi_event *event);
+	/* private fields */
+	enum efi_ip4_config2_policy policy;
+	/* List of all events registered by RegisterDataNotify() */
+	struct list_head data_notify_events;
+};
+
+struct efi_ipv4_address {
+	u8 addr[4];	/* in network byte order */
+};
+
+struct efi_ip4_route_table {
+	struct efi_ipv4_address subnet_address;
+	struct efi_ipv4_address subnet_mask;
+	struct efi_ipv4_address gateway_address;
+};
+
+#define EFI_IP4_CONFIG2_INTERFACE_INFO_NAME_SIZE 32
+
+struct efi_ip4_config2_interface_info {
+	u16 name[EFI_IP4_CONFIG2_INTERFACE_INFO_NAME_SIZE];
+	u8 if_type;
+	u32 hw_address_size;
+	struct efi_mac_address hw_address;
+	struct efi_ipv4_address station_address;
+	struct efi_ipv4_address subnet_mask;
+	u32 route_table_size;
+	struct efi_ip4_route_table *route_table;
+};
+
+struct efi_ip4_config2_manual_address {
+	struct efi_ipv4_address address;
+	struct efi_ipv4_address subnet_mask;
+};
+
 #define EFI_PXE_BASE_CODE_PROTOCOL_GUID \
 	EFI_GUID(0x03c4e603, 0xac28, 0x11d3, \
 		 0x9a, 0x2d, 0x00, 0x90, 0x27, 0x3f, 0xc1, 0x4d)

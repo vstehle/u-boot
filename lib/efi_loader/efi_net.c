@@ -25,6 +25,8 @@ static const efi_guid_t efi_pxe_base_code_protocol_guid =
 					EFI_PXE_BASE_CODE_PROTOCOL_GUID;
 static const efi_guid_t efi_ip4_service_binding_protocol_guid =
 					EFI_IP4_SERVICE_BINDING_PROTOCOL_GUID;
+static const efi_guid_t efi_ip4_config2_protocol_guid =
+					EFI_IP4_CONFIG2_PROTOCOL_GUID;
 static struct efi_pxe_packet *dhcp_ack;
 static void *new_tx_packet;
 static void *transmit_buffer;
@@ -53,6 +55,7 @@ static struct efi_event *wait_for_packet;
  * @pxe:	PXE base code protocol interface
  * @pxe_mode:	status of the PXE base code protocol
  * @ip4_srv:	Ip4 service binding protocol interface
+ * @ip4_cfg2:	Ip4 config2 protocol interface
  */
 struct efi_net_obj {
 	struct efi_object header;
@@ -60,6 +63,22 @@ struct efi_net_obj {
 	struct efi_simple_network_mode net_mode;
 	struct efi_pxe_base_code_protocol pxe;
 	struct efi_pxe_mode pxe_mode;
+	struct efi_ip4_service_binding ip4_srv;
+	struct efi_ip4_config2 ip4_cfg2;
+};
+
+/**
+ * struct efi_data_notify_event - event registered by RegisterDataNotify()
+ *
+ * @link:	link to list of all registered events
+ * @data_type:	the type of data the event is registered for
+ * @event:	registered event. The same event may be registered for multiple
+ *		data types.
+ */
+struct efi_data_notify_event {
+	struct list_head link;
+	enum efi_ip4_config2_data_type data_type;
+	struct efi_event *event;
 };
 
 /*
@@ -872,6 +891,411 @@ static efi_status_t EFIAPI efi_ip4_service_binding_destroy_child(
 	return EFI_EXIT(EFI_UNSUPPORTED);
 }
 
+static void efi_ipv4_to_in_addr(struct in_addr *dst,
+				const struct efi_ipv4_address *src)
+{
+	memcpy(&dst->s_addr, src->addr, 4);	// TODO! endianness
+}
+
+/*
+ * efi_ip4_config2_set_data() - set ipv4 configuration data
+ *
+ * This function implements EFI_IP4_CONFIG2_PROTOCOL.SetData().
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * @this:	pointer to the protocol instance
+ * @data_type:	type of data to set
+ * @data_size:	size of data
+ * @data:	data buffer
+ * Return:	status code
+ */
+static efi_status_t EFIAPI efi_ip4_config2_set_data(
+				struct efi_ip4_config2 *this,
+				enum efi_ip4_config2_data_type data_type,
+				efi_uintn_t data_size, const void *data)
+{
+	efi_status_t ret = EFI_SUCCESS;
+	const enum efi_ip4_config2_policy *policy = data;
+	const struct efi_ip4_config2_manual_address *manual = data;
+	const struct efi_ipv4_address *ip = data;
+	struct efi_data_notify_event *item;
+
+	EFI_ENTRY("%p, %d, %zu, %p", this, data_type, data_size, data);
+
+	/* Check parameters */
+	if (!this || (data_size && !data) || (!data_size && data)) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+
+	switch (data_type) {
+	case EFI_DATA_INTERFACE_INFO:
+		ret = EFI_WRITE_PROTECTED;	/* read-only */
+		break;
+	case EFI_DATA_POLICY:
+		if (data_size != sizeof(enum efi_ip4_config2_policy)) {
+			ret = EFI_INVALID_PARAMETER;
+			goto out;
+		}
+		break;
+	case EFI_DATA_MANUAL_ADDRESS:
+		/* Only configurable when the policy is static. */
+		if (this->policy != EFI_POLICY_STATIC) {
+			ret = EFI_WRITE_PROTECTED;
+			goto out;
+		}
+		if (data_size && data_size !=
+				sizeof(struct efi_ip4_config2_manual_address)) {
+			ret = EFI_INVALID_PARAMETER;
+			goto out;
+		}
+		break;
+	case EFI_DATA_GATEWAY:
+		/* Not configurable when the policy is dhcp. */
+		if (this->policy == EFI_POLICY_DHCP) {
+			ret = EFI_WRITE_PROTECTED;
+			goto out;
+		}
+		if (data_size && data_size % sizeof(struct efi_ipv4_address)) {
+			ret = EFI_INVALID_PARAMETER;
+			goto out;
+		}
+		break;
+	case EFI_DATA_DNS_SERVER:
+		/* Not configurable when the policy is dhcp. */
+		if (this->policy == EFI_POLICY_DHCP) {
+			ret = EFI_WRITE_PROTECTED;
+			goto out;
+		}
+		if (data_size && data_size % sizeof(struct efi_ipv4_address)) {
+			ret = EFI_INVALID_PARAMETER;
+			goto out;
+		}
+		break;
+	default:
+		ret = EFI_UNSUPPORTED;
+		goto out;
+	}
+
+	/* Set the configuration data */
+	switch (data_type) {
+	/* EFI_DATA_INTERFACE_INFO is read-only */
+	case EFI_DATA_POLICY:
+		switch (*policy) {
+		case EFI_POLICY_STATIC:
+		case EFI_POLICY_DHCP:
+			this->policy = *policy;
+			break;
+		default:
+			ret = EFI_INVALID_PARAMETER;
+			goto out;
+		}
+		break;
+	case EFI_DATA_MANUAL_ADDRESS:
+		if (!data_size) {
+			memset(&net_ip, 0, sizeof(net_ip));
+		} else {
+			efi_ipv4_to_in_addr(&net_ip, &manual->address);
+			efi_ipv4_to_in_addr(&net_netmask, &manual->subnet_mask);
+		}
+		break;
+	case EFI_DATA_GATEWAY:
+		if (!data_size)
+			memset(&net_gateway, 0, sizeof(net_gateway));
+		else
+			efi_ipv4_to_in_addr(&net_gateway, ip);
+		break;
+	case EFI_DATA_DNS_SERVER:
+		if (!data_size) {
+			memset(&net_dns_server, 0, sizeof(net_dns_server));
+#if defined(CONFIG_BOOTP_DNS2)
+			memset(&net_dns_server2, 0, sizeof(net_dns_server2));
+#endif
+		} else {
+			efi_ipv4_to_in_addr(&net_dns_server, ip);
+#if defined(CONFIG_BOOTP_DNS2)
+			if (data_size >= 2 * sizeof(struct efi_ipv4_address))
+				efi_ipv4_to_in_addr(&net_dns_server2, ip + 1);
+			else
+				memset(&net_dns_server2, 0, sizeof(net_dns_server2));
+#endif
+		}
+		break;
+	default:
+		ret = EFI_UNSUPPORTED;
+		goto out;
+	}
+
+	/* Notify all events for data type */
+	list_for_each_entry(item, &this->data_notify_events, link) {
+		if (item->data_type == data_type)
+			efi_signal_event(item->event);
+	}
+
+out:
+	return EFI_EXIT(ret);
+}
+
+static void in_addr_to_efi_ipv4(struct efi_ipv4_address *dst,
+				const struct in_addr *src)
+{
+	memcpy(dst->addr, &src->s_addr, 4);	// TODO! endianness
+}
+
+/*
+ * efi_ip4_config2_get_data() - get ipv4 configuration data
+ *
+ * This function implements EFI_IP4_CONFIG2_PROTOCOL.GetData().
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * @this:	pointer to the protocol instance
+ * @data_type:	type of data to get
+ * @data_size:	size of data
+ * @data:	data buffer
+ * Return:	status code
+ */
+static efi_status_t EFIAPI efi_ip4_config2_get_data(
+				const struct efi_ip4_config2 *this,
+				enum efi_ip4_config2_data_type data_type,
+				efi_uintn_t *data_size, void *data)
+{
+	efi_status_t ret = EFI_SUCCESS;
+	efi_uintn_t size;
+	struct efi_ip4_config2_interface_info *info = data;
+	struct efi_ip4_route_table *route_table =
+				(struct efi_ip4_route_table *)&info[1];
+	enum efi_ip4_config2_policy *policy = data;
+	struct efi_ipv4_address *ip = data;
+	efi_string_t tmp;
+	struct efi_ip4_config2_manual_address *manual = data;
+	const bool gateway_valid = !!net_gateway.s_addr;
+	const bool dns_valid = !!net_dns_server.s_addr;
+#if defined(CONFIG_BOOTP_DNS2)
+	const bool dns2_valid = !!net_dns_server2.s_addr;
+#else
+	const bool dns2_valid = false;
+#endif
+
+	EFI_ENTRY("%p, %d, %p, %p", this, data_type, data_size, data);
+
+	/* Check parameters */
+	if (!this || !data_size || (*data_size && !data)) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+
+	/* Count how much space we need */
+	switch (data_type) {
+	case EFI_DATA_INTERFACE_INFO:
+		size = sizeof(struct efi_ip4_config2_interface_info);
+		if (gateway_valid)
+			size += sizeof(struct efi_ip4_route_table);
+		break;
+	case EFI_DATA_POLICY:
+		size = sizeof(enum efi_ip4_config2_policy);
+		break;
+	case EFI_DATA_MANUAL_ADDRESS:
+		size = sizeof(struct efi_ip4_config2_manual_address);
+		break;
+	case EFI_DATA_GATEWAY:
+		size = gateway_valid ? sizeof(struct efi_ipv4_address) : 0;
+		break;
+	case EFI_DATA_DNS_SERVER:
+		size = dns_valid ? sizeof(struct efi_ipv4_address) : 0;
+		if (dns2_valid)
+			size += sizeof(struct efi_ipv4_address);
+		break;
+	default:
+		ret = EFI_NOT_FOUND;
+		goto out;
+	}
+
+	if (!size) {
+		*data_size = size;
+		ret = EFI_NOT_FOUND;
+		goto out;
+	}
+
+	if (*data_size < size) {
+		*data_size = size;
+		ret = EFI_BUFFER_TOO_SMALL;
+		goto out;
+	}
+
+	*data_size = size;
+
+	/* Get the configuration data */
+	switch (data_type) {
+	case EFI_DATA_INTERFACE_INFO:
+		*info = (struct efi_ip4_config2_interface_info){
+			.if_type = 1,	/* RFC 1700 ethernet */
+			.hw_address_size = ARP_HLEN,
+		};
+		tmp = info->name;
+		utf8_utf16_strncpy(&tmp, eth_get_name(),
+				   sizeof(info->name) - 1);
+		memcpy(&info->hw_address, eth_get_ethaddr(), ARP_HLEN);
+		in_addr_to_efi_ipv4(&info->station_address, &net_ip);
+		in_addr_to_efi_ipv4(&info->subnet_mask, &net_netmask);
+		if (gateway_valid) {
+			/* edk2 ifconfig bug?
+			 * https://bugzilla.tianocore.org/show_bug.cgi?id=4546
+			 */
+			info->route_table_size = 1;
+			info->route_table = route_table;
+			memset(route_table, 0, sizeof(*route_table));
+			in_addr_to_efi_ipv4(&route_table->gateway_address,
+					    &net_gateway);
+		}
+		break;
+	case EFI_DATA_POLICY:
+		*policy = this->policy;
+		break;
+	case EFI_DATA_MANUAL_ADDRESS:
+		in_addr_to_efi_ipv4(&manual->address, &net_ip);
+		in_addr_to_efi_ipv4(&manual->subnet_mask, &net_netmask);
+		break;
+	case EFI_DATA_GATEWAY:
+		if (gateway_valid)
+			in_addr_to_efi_ipv4(ip, &net_gateway);
+		break;
+	case EFI_DATA_DNS_SERVER:
+		if (dns_valid)
+			in_addr_to_efi_ipv4(ip++, &net_dns_server);
+#if defined(CONFIG_BOOTP_DNS2)
+		if (dns2_valid)
+			in_addr_to_efi_ipv4(ip, &net_dns_server2);
+#endif
+		break;
+	default:
+		ret = EFI_NOT_FOUND;
+		goto out;
+	}
+
+out:
+	return EFI_EXIT(ret);
+}
+
+/*
+ * efi_ip4_config2_register_data_notify() - register ipv4 config event
+ *
+ * This function implements EFI_IP4_CONFIG2_PROTOCOL.RegisterDataNotify().
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * @this:	pointer to the protocol instance
+ * @data_type:	type of data to register event for
+ * @event:	event to register
+ * Return:	status code
+ */
+static efi_status_t EFIAPI efi_ip4_config2_register_data_notify(
+				struct efi_ip4_config2 *this,
+				enum efi_ip4_config2_data_type data_type,
+				struct efi_event *event)
+{
+	efi_status_t ret;
+	struct efi_data_notify_event *item;
+
+	EFI_ENTRY("%p, %d, %p", this, data_type, event);
+
+	/* Check parameters */
+	if (!this) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+
+	switch (data_type) {
+	case EFI_DATA_INTERFACE_INFO:
+	case EFI_DATA_POLICY:
+	case EFI_DATA_MANUAL_ADDRESS:
+	case EFI_DATA_GATEWAY:
+	case EFI_DATA_DNS_SERVER:
+		break;
+	default:
+		ret = EFI_UNSUPPORTED;
+		goto out;
+	}
+
+	/* Check that the event is valid */
+	ret = efi_is_event(event);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	/* Check if this event is already registered for this data type */
+	list_for_each_entry(item, &this->data_notify_events, link) {
+		if (item->data_type == data_type && item->event == event) {
+			ret = EFI_ACCESS_DENIED;
+			goto out;
+		}
+	}
+
+	/* Register event for data type */
+	item = malloc(sizeof(struct efi_data_notify_event));
+	if (!item) {
+		ret = EFI_OUT_OF_RESOURCES;
+		goto out;
+	}
+
+	*item = (struct efi_data_notify_event){
+		.data_type = data_type,
+		.event = event
+	};
+	list_add_tail(&item->link, &this->data_notify_events);
+
+out:
+	return EFI_EXIT(ret);
+}
+
+/*
+ * efi_ip4_config2_unregister_data_notify() - unregister ipv4 config event
+ *
+ * This function implements EFI_IP4_CONFIG2_PROTOCOL.UnregisterDataNotify().
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * @this:	pointer to the protocol instance
+ * @data_type:	type of data to remove the previously registered event for
+ * @event:	event to unregister
+ * Return:	status code
+ */
+static efi_status_t EFIAPI efi_ip4_config2_unregister_data_notify(
+				struct efi_ip4_config2 *this,
+				enum efi_ip4_config2_data_type data_type,
+				struct efi_event *event)
+{
+	efi_status_t ret;
+	struct efi_data_notify_event *item, *next;
+
+	EFI_ENTRY("%p, %d, %p", this, data_type, event);
+
+	/* Check parameters */
+	if (!this) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+
+	/* Check that the event is valid */
+	ret = efi_is_event(event);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	/* Unregister event for data type */
+	list_for_each_entry_safe(item, next, &this->data_notify_events, link) {
+		if (item->data_type == data_type && item->event == event) {
+			list_del(&item->link);
+			free(item);
+			goto out;
+		}
+	}
+
+	ret = EFI_NOT_FOUND;
+
+out:
+	return EFI_EXIT(ret);
+}
+
 /**
  * efi_net_register() - register the simple network protocol
  *
@@ -934,6 +1358,11 @@ efi_status_t efi_net_register(void)
 			     &netobj->ip4_srv);
 	if (r != EFI_SUCCESS)
 		goto failure_to_add_protocol;
+	r = efi_add_protocol(&netobj->header,
+			     &efi_ip4_config2_protocol_guid,
+			     &netobj->ip4_cfg2);
+	if (r != EFI_SUCCESS)
+		goto failure_to_add_protocol;
 	netobj->net.revision = EFI_SIMPLE_NETWORK_PROTOCOL_REVISION;
 	netobj->net.start = efi_net_start;
 	netobj->net.stop = efi_net_stop;
@@ -977,6 +1406,16 @@ efi_status_t efi_net_register(void)
 		.create_child = efi_ip4_service_binding_create_child,
 		.destroy_child = efi_ip4_service_binding_destroy_child
 	};
+
+	netobj->ip4_cfg2 = (struct efi_ip4_config2){
+		.set_data = efi_ip4_config2_set_data,
+		.get_data = efi_ip4_config2_get_data,
+		.register_data_notify = efi_ip4_config2_register_data_notify,
+		.unregister_data_notify =
+					efi_ip4_config2_unregister_data_notify,
+		.policy = EFI_POLICY_STATIC
+	};
+	INIT_LIST_HEAD(&netobj->ip4_cfg2.data_notify_events);
 
 	/*
 	 * Create WaitForPacket event.
