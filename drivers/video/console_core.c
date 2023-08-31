@@ -56,7 +56,7 @@ int check_bpix_support(int bpix)
 		return -ENOSYS;
 }
 
-inline void fill_pixel_and_goto_next(void **dstp, u32 value, int pbytes, int step)
+void fill_pixel_and_goto_next(void **dstp, u32 value, int pbytes, int step)
 {
 	u8 *dst_byte = *dstp;
 

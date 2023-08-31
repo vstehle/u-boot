@@ -15,6 +15,8 @@
  * Reset():	 EfiSimpleNetworkInitialized -> EfiSimpleNetworkInitialized
  */
 
+#define LOG_DEBUG
+
 #include <common.h>
 #include <efi_loader.h>
 #include <malloc.h>
@@ -740,7 +742,9 @@ static void EFIAPI efi_network_timer_notify(struct efi_event *event,
 {
 	struct efi_simple_network *this = (struct efi_simple_network *)context;
 
-	EFI_ENTRY("%p, %p", event, context);
+	//EFI_ENTRY("%p, %p", event, context);
+	__efi_entry_check();
+	__efi_nesting_inc();
 
 	/*
 	 * Some network drivers do not support calling eth_rx() before
@@ -760,7 +764,9 @@ static void EFIAPI efi_network_timer_notify(struct efi_event *event,
 		}
 	}
 out:
-	EFI_EXIT(EFI_SUCCESS);
+	//EFI_EXIT(EFI_SUCCESS);
+	__efi_nesting_dec();
+	__efi_exit_check();
 }
 
 static efi_status_t EFIAPI efi_pxe_base_code_start(
