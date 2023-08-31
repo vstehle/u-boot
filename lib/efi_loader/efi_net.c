@@ -23,6 +23,8 @@
 static const efi_guid_t efi_net_guid = EFI_SIMPLE_NETWORK_PROTOCOL_GUID;
 static const efi_guid_t efi_pxe_base_code_protocol_guid =
 					EFI_PXE_BASE_CODE_PROTOCOL_GUID;
+static const efi_guid_t efi_ip4_service_binding_protocol_guid =
+					EFI_IP4_SERVICE_BINDING_PROTOCOL_GUID;
 static struct efi_pxe_packet *dhcp_ack;
 static void *new_tx_packet;
 static void *transmit_buffer;
@@ -50,6 +52,7 @@ static struct efi_event *wait_for_packet;
  * @net_mode:	status of the network interface
  * @pxe:	PXE base code protocol interface
  * @pxe_mode:	status of the PXE base code protocol
+ * @ip4_srv:	Ip4 service binding protocol interface
  */
 struct efi_net_obj {
 	struct efi_object header;
@@ -853,6 +856,22 @@ static efi_status_t EFIAPI efi_pxe_base_code_set_packets(
 	return EFI_UNSUPPORTED;
 }
 
+static efi_status_t EFIAPI efi_ip4_service_binding_create_child(
+				struct efi_ip4_service_binding *this,
+				efi_handle_t *child_handle)
+{
+	EFI_ENTRY("%p, %p", this, child_handle);
+	return EFI_EXIT(EFI_UNSUPPORTED);
+}
+
+static efi_status_t EFIAPI efi_ip4_service_binding_destroy_child(
+				struct efi_ip4_service_binding *this,
+				efi_handle_t child_handle)
+{
+	EFI_ENTRY("%p, %p", this, child_handle);
+	return EFI_EXIT(EFI_UNSUPPORTED);
+}
+
 /**
  * efi_net_register() - register the simple network protocol
  *
@@ -910,6 +929,11 @@ efi_status_t efi_net_register(void)
 			     &netobj->pxe);
 	if (r != EFI_SUCCESS)
 		goto failure_to_add_protocol;
+	r = efi_add_protocol(&netobj->header,
+			     &efi_ip4_service_binding_protocol_guid,
+			     &netobj->ip4_srv);
+	if (r != EFI_SUCCESS)
+		goto failure_to_add_protocol;
 	netobj->net.revision = EFI_SIMPLE_NETWORK_PROTOCOL_REVISION;
 	netobj->net.start = efi_net_start;
 	netobj->net.stop = efi_net_stop;
@@ -948,6 +972,11 @@ efi_status_t efi_net_register(void)
 	netobj->pxe.mode = &netobj->pxe_mode;
 	if (dhcp_ack)
 		netobj->pxe_mode.dhcp_ack = *dhcp_ack;
+
+	netobj->ip4_srv = (struct efi_ip4_service_binding){
+		.create_child = efi_ip4_service_binding_create_child,
+		.destroy_child = efi_ip4_service_binding_destroy_child
+	};
 
 	/*
 	 * Create WaitForPacket event.

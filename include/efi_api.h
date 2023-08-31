@@ -1532,6 +1532,19 @@ struct efi_simple_network {
 	u32 int_status;
 };
 
+#define EFI_IP4_SERVICE_BINDING_PROTOCOL_GUID \
+	EFI_GUID(0xc51711e7, 0xb4bf, 0x404a, \
+		 0xbf, 0xb8, 0x0a, 0x04, 0x8e, 0xf1, 0xff, 0xe4)
+
+struct efi_ip4_service_binding {
+	efi_status_t (EFIAPI *create_child)(
+			struct efi_ip4_service_binding *this,
+			efi_handle_t *child_handle);
+	efi_status_t (EFIAPI *destroy_child)(
+			struct efi_ip4_service_binding *this,
+			efi_handle_t child_handle);
+};
+
 #define EFI_PXE_BASE_CODE_PROTOCOL_GUID \
 	EFI_GUID(0x03c4e603, 0xac28, 0x11d3, \
 		 0x9a, 0x2d, 0x00, 0x90, 0x27, 0x3f, 0xc1, 0x4d)
