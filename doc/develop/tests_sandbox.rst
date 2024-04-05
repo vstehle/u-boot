@@ -29,7 +29,7 @@ Some of the available tests are:
      - test/image/test-imagetools.sh - multi-file images
      - test/py/tests/test-fit.py     - FIT images
   - tracing: test/trace/test-trace.sh tests the tracing system (see
-      README.trace)
+      doc/develop/trace.rst)
   - verified boot: test/py/tests/test_vboot.py
 
 If you change or enhance any U-Boot subsystem, you should write or expand a
