@@ -55,7 +55,7 @@ static efi_status_t EFIAPI gop_query_mode(struct efi_gop *this, u32 mode_number,
 	ret = efi_allocate_pool(EFI_BOOT_SERVICES_DATA, sizeof(gopobj->info),
 				(void **)info);
 	if (ret != EFI_SUCCESS)
-		goto out;
+		goto out;	// TODO!
 	*size_of_info = sizeof(gopobj->info);
 	memcpy(*info, &gopobj->info, sizeof(gopobj->info));
 
@@ -366,7 +366,7 @@ static efi_status_t EFIAPI gop_set_mode(struct efi_gop *this, u32 mode_number)
 	EFI_ENTRY("%p, %x", this, mode_number);
 
 	if (!this) {
-		ret = EFI_INVALID_PARAMETER;
+		ret = EFI_INVALID_PARAMETER;	// TODO!
 		goto out;
 	}
 	if (mode_number) {
@@ -377,7 +377,7 @@ static efi_status_t EFIAPI gop_set_mode(struct efi_gop *this, u32 mode_number)
 	vid_bpp = gop_get_bpp(this);
 	ret = gop_blt_video_fill(this, &buffer, EFI_BLT_VIDEO_FILL, 0, 0, 0, 0,
 				 gopobj->info.width, gopobj->info.height, 0,
-				 vid_bpp);
+				 vid_bpp);	// TODO!
 out:
 	return EFI_EXIT(ret);
 }
@@ -419,30 +419,30 @@ static efi_status_t EFIAPI gop_blt(struct efi_gop *this,
 	switch (operation) {
 	case EFI_BLT_VIDEO_FILL:
 		ret = gop_blt_video_fill(this, buffer, operation, sx, sy, dx,
-					 dy, width, height, delta, vid_bpp);
+					 dy, width, height, delta, vid_bpp); // TODO!
 		break;
 	case EFI_BLT_BUFFER_TO_VIDEO:
 		/* This needs to be super-fast, so duplicate for 16/32bpp */
 		if (vid_bpp == 32)
 			ret = gop_blt_buf_to_vid32(this, buffer, operation, sx,
 						   sy, dx, dy, width, height,
-						   delta);
+						   delta);	// TODO!
 		else if (vid_bpp == 30)
 			ret = gop_blt_buf_to_vid30(this, buffer, operation, sx,
 						   sy, dx, dy, width, height,
-						   delta);
+						   delta);	// TODO!
 		else
 			ret = gop_blt_buf_to_vid16(this, buffer, operation, sx,
 						   sy, dx, dy, width, height,
-						   delta);
+						   delta);	// TODO!
 		break;
 	case EFI_BLT_VIDEO_TO_VIDEO:
 		ret = gop_blt_vid_to_vid(this, buffer, operation, sx, sy, dx,
-					 dy, width, height, delta, vid_bpp);
+					 dy, width, height, delta, vid_bpp); // TODO!
 		break;
 	case EFI_BLT_VIDEO_TO_BLT_BUFFER:
 		ret = gop_blt_vid_to_buf(this, buffer, operation, sx, sy, dx,
-					 dy, width, height, delta, vid_bpp);
+					 dy, width, height, delta, vid_bpp); // TODO!
 		break;
 	default:
 		ret = EFI_INVALID_PARAMETER;

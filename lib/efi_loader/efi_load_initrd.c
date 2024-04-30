@@ -130,7 +130,7 @@ efi_load_file2_initrd(struct efi_load_file_protocol *this,
 	}
 
 	/* Get file size */
-	ret = efi_file_size(f, &bs);
+	ret = efi_file_size(f, &bs);	// TODO!
 	if (ret != EFI_SUCCESS)
 		goto out;
 

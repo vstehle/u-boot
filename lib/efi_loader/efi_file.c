@@ -317,7 +317,7 @@ static efi_status_t EFIAPI efi_file_open(struct efi_file_handle *this,
 		  file_name, open_mode, attributes);
 
 	ret = efi_file_open_int(this, new_handle, file_name, open_mode,
-				attributes);
+				attributes);	// TODO!
 
 	return EFI_EXIT(ret);
 }
@@ -347,12 +347,12 @@ static efi_status_t EFIAPI efi_file_open_ex(struct efi_file_handle *this,
 		  file_name, open_mode, attributes, token);
 
 	if (!token) {
-		ret = EFI_INVALID_PARAMETER;
+		ret = EFI_INVALID_PARAMETER;	// TODO!
 		goto out;
 	}
 
 	ret = efi_file_open_int(this, new_handle, file_name, open_mode,
-				attributes);
+				attributes);	// TODO!
 
 	if (ret == EFI_SUCCESS && token->event) {
 		token->status = EFI_SUCCESS;
@@ -440,7 +440,7 @@ efi_status_t efi_file_size(struct efi_file_handle *fh, efi_uintn_t *size)
 
 	info = malloc(bs);
 	if (!info) {
-		ret = EFI_OUT_OF_RESOURCES;
+		ret = EFI_OUT_OF_RESOURCES;	// TODO!
 		goto out;
 	}
 	ret = EFI_CALL(fh->getinfo(fh, (efi_guid_t *)&efi_file_info_guid, &bs,
@@ -612,7 +612,7 @@ static efi_status_t EFIAPI efi_file_read(struct efi_file_handle *this,
 
 	EFI_ENTRY("%p, %p, %p", this, buffer_size, buffer);
 
-	ret = efi_file_read_int(this, buffer_size, buffer);
+	ret = efi_file_read_int(this, buffer_size, buffer);	// TODO!
 
 	return EFI_EXIT(ret);
 }
@@ -637,11 +637,11 @@ static efi_status_t EFIAPI efi_file_read_ex(struct efi_file_handle *this,
 	EFI_ENTRY("%p, %p", this, token);
 
 	if (!token) {
-		ret = EFI_INVALID_PARAMETER;
+		ret = EFI_INVALID_PARAMETER;	// TODO!
 		goto out;
 	}
 
-	ret = efi_file_read_int(this, &token->buffer_size, token->buffer);
+	ret = efi_file_read_int(this, &token->buffer_size, token->buffer); // TODO!
 
 	if (ret == EFI_SUCCESS && token->event) {
 		token->status = EFI_SUCCESS;
@@ -712,7 +712,7 @@ static efi_status_t EFIAPI efi_file_write(struct efi_file_handle *this,
 
 	EFI_ENTRY("%p, %p, %p", this, buffer_size, buffer);
 
-	ret = efi_file_write_int(this, buffer_size, buffer);
+	ret = efi_file_write_int(this, buffer_size, buffer);	// TODO!
 
 	return EFI_EXIT(ret);
 }
@@ -737,11 +737,11 @@ static efi_status_t EFIAPI efi_file_write_ex(struct efi_file_handle *this,
 	EFI_ENTRY("%p, %p", this, token);
 
 	if (!token) {
-		ret = EFI_INVALID_PARAMETER;
+		ret = EFI_INVALID_PARAMETER;	// TODO!
 		goto out;
 	}
 
-	ret = efi_file_write_int(this, &token->buffer_size, token->buffer);
+	ret = efi_file_write_int(this, &token->buffer_size, token->buffer); // TODO!
 
 	if (ret == EFI_SUCCESS && token->event) {
 		token->status = EFI_SUCCESS;
@@ -844,7 +844,7 @@ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
 
 	if (!file || !info_type || !buffer_size ||
 	    (*buffer_size && !buffer)) {
-		ret = EFI_INVALID_PARAMETER;
+		ret = EFI_INVALID_PARAMETER;	// TODO!
 		goto error;
 	}
 
@@ -962,7 +962,7 @@ static efi_status_t EFIAPI efi_file_setinfo(struct efi_file_handle *file,
 		/* Check for renaming */
 		new_file_name = malloc(utf16_utf8_strlen(info->file_name) + 1);
 		if (!new_file_name) {
-			ret = EFI_OUT_OF_RESOURCES;
+			ret = EFI_OUT_OF_RESOURCES;	// TODO!
 			goto out;
 		}
 		pos = new_file_name;
@@ -1012,7 +1012,7 @@ static efi_status_t efi_file_flush_int(struct efi_file_handle *this)
 	struct file_handle *fh = to_fh(this);
 
 	if (!this)
-		return EFI_INVALID_PARAMETER;
+		return EFI_INVALID_PARAMETER;	// TODO!
 
 	if (!(fh->open_mode & EFI_FILE_MODE_WRITE))
 		return EFI_ACCESS_DENIED;
@@ -1038,7 +1038,7 @@ static efi_status_t EFIAPI efi_file_flush(struct efi_file_handle *this)
 
 	EFI_ENTRY("%p", this);
 
-	ret = efi_file_flush_int(this);
+	ret = efi_file_flush_int(this);	// TODO!
 
 	return EFI_EXIT(ret);
 }
@@ -1063,11 +1063,11 @@ static efi_status_t EFIAPI efi_file_flush_ex(struct efi_file_handle *this,
 	EFI_ENTRY("%p, %p", this, token);
 
 	if (!token) {
-		ret = EFI_INVALID_PARAMETER;
+		ret = EFI_INVALID_PARAMETER;	// TODO!
 		goto out;
 	}
 
-	ret = efi_file_flush_int(this);
+	ret = efi_file_flush_int(this);	// TODO!
 
 	if (ret == EFI_SUCCESS && token->event) {
 		token->status = EFI_SUCCESS;

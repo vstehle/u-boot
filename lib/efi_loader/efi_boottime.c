@@ -1021,7 +1021,7 @@ static efi_status_t EFIAPI efi_signal_event_ext(struct efi_event *event)
 {
 	EFI_ENTRY("%p", event);
 	if (efi_is_event(event) != EFI_SUCCESS)
-		return EFI_EXIT(EFI_INVALID_PARAMETER);
+		return EFI_EXIT(EFI_SUCCESS);
 	efi_signal_event(event);
 	return EFI_EXIT(EFI_SUCCESS);
 }
@@ -1043,7 +1043,7 @@ static efi_status_t EFIAPI efi_close_event(struct efi_event *event)
 
 	EFI_ENTRY("%p", event);
 	if (efi_is_event(event) != EFI_SUCCESS)
-		return EFI_EXIT(EFI_INVALID_PARAMETER);
+		return EFI_EXIT(EFI_SUCCESS);
 
 	/* Remove protocol notify registrations for the event */
 	list_for_each_entry_safe(item, next, &efi_register_notify_events,
@@ -3486,7 +3486,7 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
 		ret = efi_update_exit_data(image_obj, exit_data_size,
 					   exit_data);
 		/* Exiting has priority. Don't return error to caller. */
-		if (ret != EFI_SUCCESS)
+		if (ret != EFI_SUCCESS)	// TODO!
 			EFI_PRINT("%s: out of memory\n", __func__);
 	}
 	/* efi_delete_image() frees image_obj. Copy before the call. */
@@ -3499,7 +3499,7 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
 	if (IS_ENABLED(CONFIG_EFI_TCG2_PROTOCOL)) {
 		if (image_obj->image_type == IMAGE_SUBSYSTEM_EFI_APPLICATION) {
 			ret = efi_tcg2_measure_efi_app_exit();
-			if (ret != EFI_SUCCESS) {
+			if (ret != EFI_SUCCESS) {	// TODO!
 				log_warning("tcg2 measurement fails(0x%lx)\n",
 					    ret);
 			}

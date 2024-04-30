@@ -647,7 +647,7 @@ static efi_status_t efi_capsule_update_firmware(
 		    !(image->image_capsule_support &
 				CAPSULE_SUPPORT_AUTHENTICATION)) {
 			/* no signature */
-			ret = EFI_SECURITY_VIOLATION;
+			ret = EFI_SECURITY_VIOLATION;	// TODO!
 			goto out;
 		}
 
@@ -760,7 +760,7 @@ efi_status_t EFIAPI efi_update_capsule(
 
 		log_debug("Capsule[%d] (guid:%pUs)\n",
 			  i, &capsule->capsule_guid);
-		ret  = efi_capsule_update_firmware(capsule);
+		ret  = efi_capsule_update_firmware(capsule);	// TODO!
 		if (ret != EFI_SUCCESS)
 			goto out;
 	}
