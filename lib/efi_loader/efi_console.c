@@ -170,13 +170,13 @@ static efi_status_t EFIAPI efi_cout_output_string(
 	EFI_ENTRY("%p, %p", this, string);
 
 	if (!this || !string) {
-		ret = EFI_INVALID_PARAMETER;
+		ret = EFI_DEVICE_ERROR;
 		goto out;
 	}
 
 	buf = malloc(utf16_utf8_strlen(string) + 1);
 	if (!buf) {
-		ret = EFI_OUT_OF_RESOURCES;
+		ret = EFI_DEVICE_ERROR;
 		goto out;
 	}
 	pos = buf;
@@ -597,7 +597,7 @@ static efi_status_t EFIAPI efi_cout_set_cursor_position(
 
 	/* Check parameters */
 	if (!this) {
-		ret = EFI_INVALID_PARAMETER;
+		ret = EFI_DEVICE_ERROR;
 		goto out;
 	}
 	if (row >= mode->rows || column >= mode->columns) {
