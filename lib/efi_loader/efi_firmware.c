@@ -605,7 +605,7 @@ efi_status_t EFIAPI efi_firmware_fit_set_image(
 		return EFI_EXIT(status);
 
 	if (fit_update(image))
-		return EFI_EXIT(EFI_DEVICE_ERROR);
+		return EFI_EXIT(EFI_ABORTED);
 
 	efi_firmware_set_fmp_state_var(&state, image_index);
 
@@ -684,13 +684,13 @@ efi_status_t EFIAPI efi_firmware_raw_set_image(
 		ret = fwu_get_dfu_alt_num(image_index, &dfu_alt_num);
 		if (ret) {
 			log_debug("Unable to get FWU image_index\n");
-			return EFI_EXIT(EFI_DEVICE_ERROR);
+			return EFI_EXIT(EFI_ABORTED);
 		}
 	}
 
 	if (dfu_write_by_alt(dfu_alt_num, (void *)image, image_size,
 			     NULL, NULL))
-		return EFI_EXIT(EFI_DEVICE_ERROR);
+		return EFI_EXIT(EFI_ABORTED);
 
 	efi_firmware_set_fmp_state_var(&state, image_index);
 
