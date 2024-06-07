@@ -66,7 +66,7 @@ static efi_status_t EFIAPI rng_getinfo(struct efi_rng_protocol *this,
 		  rng_algorithm_list);
 
 	if (!this || !rng_algorithm_list_size) {
-		ret = EFI_INVALID_PARAMETER;
+		ret = EFI_DEVICE_ERROR;
 		goto back;
 	}
 
