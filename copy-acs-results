@@ -1,0 +1,18 @@
+#!/bin/bash
+set -eux
+
+[ "$(id -u)" == 0 ]
+[ -s disk.img ]
+
+s=$(/sbin/fdisk -lu disk.img |grep disk.img1 |sed 's/ \+/ /g' |cut -d \  -f 2)
+
+mount ./disk.img /mnt -o loop,umask=0000,offset=$((512 * s))
+trap 'umount /mnt' EXIT
+
+rm -fr acs_results
+cp -r /mnt/acs_results .
+
+if [ -n "$SUDO_USER" ]; then
+	g=$(id -g "$SUDO_USER")
+	chown -R "$SUDO_USER:$g" acs_results
+fi

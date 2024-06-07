@@ -1,0 +1,18 @@
+#!/bin/bash
+set -eux -o pipefail
+
+[ -s disk.img ] || exit 1
+
+if [ ! -e esp.img ]; then
+	rm -fr empty
+	mkdir empty
+	virt-make-fs --partition=gpt --size=+1M --type=vfat empty esp.img
+	/sbin/sgdisk esp.img -A 1:set:0 -t 1:C12A7328-F81F-11D2-BA4B-00A0C93EC93B
+fi
+
+rm -vf acs-console.log record.log
+
+while : ; do
+	./u-boot --fdt arch/sandbox/dts/test.dtb |& tee -a acs-console.log
+	sleep 1
+done

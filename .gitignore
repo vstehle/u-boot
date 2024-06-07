@@ -128,3 +128,23 @@ __pycache__
 
 # Clang's compilation database file
 /compile_commands.json
+
+/EBBR.seq
+/EBBR.seq.orig.txt
+/EBBR.seq.txt
+/KEK.auth
+/KEK.esl
+/PK.crt
+/PK.esl
+/PK.key
+/acs_results
+/capsule_gen_tmp.dts
+/drivers/video/u_boot_logo.S
+/include/bmp_logo.h
+/include/bmp_logo_data.h
+/ir-acs-live-image-generic-arm64*.wic
+/log
+/mnt_efisecure/
+/multiplexed_log.css
+/persistent-data/
+/test-log.html

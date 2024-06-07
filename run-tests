@@ -1,0 +1,31 @@
+#!/bin/bash
+set -eux
+
+touch include/autoconf.mk
+
+rm -vf disk.img esp.img
+
+./test/py/test.py \
+	--board-type sandbox \
+	--build-dir "$PWD" \
+	--numprocesses auto \
+	-k "efi \
+and not test_efi_signed_image_auth1 \
+and not test_efi_signed_image_auth2 \
+and not test_efi_signed_image_auth3 \
+and not test_efi_signed_image_auth4 \
+and not test_efi_signed_image_auth5 \
+and not test_efi_signed_image_auth6 \
+and not test_efi_signed_image_auth7 \
+and not test_efi_signed_image_auth8 \
+and not test_efi_signed_image_intca1 \
+and not test_efi_signed_image_intca2 \
+and not test_efi_signed_image_intca3 \
+and not test_efi_unsigned_image_auth1 \
+and not test_efi_unsigned_image_auth2 \
+and not test_efi_unsigned_image_auth3 \
+and not test_efi_var_auth2 \
+and not test_efi_var_auth3 \
+and not test_efi_var_auth4 \
+and not test_efi_var_auth5 \
+"

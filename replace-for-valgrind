@@ -1,0 +1,7 @@
+#!/bin/bash
+set -eux -o pipefail
+
+if file u-boot |grep -q ELF; then
+	mv -v u-boot u-boot.real
+	ln -vs run-with-valgrind u-boot
+fi

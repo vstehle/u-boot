@@ -1178,3 +1178,45 @@ int main(int argc, char *argv[])
 	return sandbox_main(argc, argv);
 }
 #endif
+
+void record_efi_exit(unsigned long ret, const char *func)
+{
+	static bool give_up = false;
+	static int fd = -1;
+	char buf[256];
+	int s;
+
+	if (give_up)
+		return;
+
+	if (fd < 0) {
+		fd = open("record.log",
+			  O_WRONLY | O_APPEND | O_CREAT | O_CLOEXEC, 0777);
+		if (fd < 0) {
+			printf("Cannot open efi exit record!\n");
+			goto err;
+		}
+	}
+
+	s = snprintf(buf, sizeof(buf), "%s -> %#lx\n", func, ret);
+	if (s < 0) {
+		printf("Cannot format efi exit record!\n");
+		goto err;
+	}
+
+	if (write(fd, buf, s) != s) {
+		printf("Cannot record efi exit!\n");
+		goto err;
+	}
+
+	return;
+
+err:
+	if (fd >= 0) {
+		if (close(fd))
+			printf("Cannot close efi exit record!\n");
+	}
+
+	fd = -1;
+	give_up = true;
+}

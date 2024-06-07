@@ -1,0 +1,14 @@
+#!/bin/bash
+set -eux -o pipefail
+
+rm -vf err.log
+
+make coccicheck \
+	COCCI=scripts/coccinelle/efi/rc.cocci \
+	DEBUG_FILE=err.log \
+	J=1 \
+	MODE=patch \
+	V=1 \
+	|& tee cocci.log
+
+cat err.log

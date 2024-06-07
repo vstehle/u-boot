@@ -1,0 +1,12 @@
+append_device_node
+append_device_path
+duplicate_device_path
+efi_console_timer_notify
+efi_convert_device_path_to_text
+efi_copy_mem
+efi_esrt_new_fmp_notify
+efi_key_notify
+efi_metai_match
+efi_network_timer_notify
+efi_set_mem
+efi_stri_coll

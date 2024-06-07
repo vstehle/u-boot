@@ -198,11 +198,20 @@ const char *__efi_nesting_dec(void);
 		__func__, ##__VA_ARGS__); \
 	} while(0)
 
+#if 0
+extern void record_efi_exit(unsigned long, const char *);
+#define RECORD_EFI_EXIT(RET, FUNC) \
+	record_efi_exit(RET, FUNC)
+#else
+#define RECORD_EFI_EXIT(RET, FUNC) /**/
+#endif
+
 /*
  * Exit the u-boot world back to UEFI:
  */
 #define EFI_EXIT(ret) ({ \
 	typeof(ret) _r = ret; \
+	RECORD_EFI_EXIT((unsigned long)ret, __func__); \
 	debug("%sEFI: Exit: %s: %u\n", __efi_nesting_dec(), \
 		__func__, (u32)((uintptr_t) _r & ~EFI_ERROR_MASK)); \
 	assert(__efi_exit_check()); \

@@ -1,0 +1,36 @@
+#!/bin/bash
+set -eux
+
+# $1: filename
+backup()
+{
+	[ -e "$1.orig" ] || cp -v "$1" "$1.orig"
+}
+
+[ "$(id -u)" == 0 ]
+[ -s disk.img ]
+
+s=$(/sbin/fdisk -lu disk.img |grep disk.img1 |sed 's/ \+/ /g' |cut -d \  -f 2)
+
+mount ./disk.img /mnt -o loop,umask=0000,offset=$((512 * s))
+trap 'umount /mnt' EXIT
+
+#ls /mnt
+#ls /mnt/EFI
+#ls /mnt/EFI/BOOT
+#ls /mnt/EFI/BOOT/bbr
+#ls /mnt/EFI/BOOT/bbr/SCT
+#ls /mnt/EFI/BOOT/bbr/SCT/Sequence
+#ls /mnt/EFI/BOOT/bbr/SCT/Sequence/EBBR.seq
+
+# Patch EBBR.seq to remove Sbbr execution level test.
+backup /mnt/EFI/BOOT/bbr/SCT/Sequence/EBBR.seq
+cp -vf files/EBBR.seq /mnt/EFI/BOOT/bbr/SCT/Sequence/
+cp -vf /mnt/EFI/BOOT/bbr/SCT/Sequence/EBBR.seq{.orig,} .
+#iconv -f UTF-16 -t ASCII//TRANSLIT EBBR.seq |tr -d '\0' >EBBR.seq.txt
+#iconv -f UTF-16 -t ASCII//TRANSLIT EBBR.seq.orig |tr -d '\0' >EBBR.seq.orig.txt
+#diff -u EBBR.seq{.orig,}.txt || :
+
+#cp -v /mnt/startup.nsh startup.nsh.orig
+#cp -v files/startup.nsh /mnt/
+#diff -u startup.nsh.orig startup.nsh || :

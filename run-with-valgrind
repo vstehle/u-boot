@@ -1,0 +1,11 @@
+#!/bin/bash
+set -u
+
+exec valgrind \
+	--leak-check=full \
+	--log-file=valgrind.log \
+	--show-leak-kinds=all \
+	--suppressions=scripts/u-boot.supp \
+	--track-origins=yes \
+	-s \
+	./u-boot.real "$@"
