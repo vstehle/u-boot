@@ -922,8 +922,6 @@ dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mm-kontron-bl-osm-s.dtb \
 	imx8mm-mx8menlo.dtb \
 	imx8mm-phg.dtb \
-	imx8mm-phyboard-polis-rdk.dtb \
-	imx8mm-phygate-tauri-l.dtb \
 	imx8mn-bsh-smm-s2.dtb \
 	imx8mn-bsh-smm-s2pro.dtb \
 	imx8mq-cm.dtb \
@@ -941,7 +939,6 @@ dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mp-dhcom-pdk3-overlay-rev100.dtbo \
 	imx8mp-icore-mx8mp-edimm2.2.dtb \
 	imx8mp-msc-sm2s.dtb \
-	imx8mp-phyboard-pollux-rdk.dtb \
 	imx8mq-pico-pi.dtb \
 	imx8mq-kontron-pitx-imx8m.dtb \
 	imx8mq-librem5-r4.dtb
@@ -953,9 +950,6 @@ dtb-$(CONFIG_ARCH_IMX9) += \
 dtb-$(CONFIG_ARCH_IMXRT) += imxrt1050-evk.dtb \
 	imxrt1020-evk.dtb \
 	imxrt1170-evk.dtb \
-
-dtb-$(CONFIG_RCAR_GEN4) += \
-	r8a779h0-gray-hawk.dtb
 
 dtb-$(CONFIG_TARGET_RZG2L) += \
 	r9a07g044l2-smarc.dts
@@ -1185,18 +1179,13 @@ dtb-$(CONFIG_SOC_K3_AM654) += \
 	k3-am6548-iot2050-advanced-m2-bkey-ekey-pcie-overlay.dtbo \
 	k3-am654-icssg2.dtbo
 
-dtb-$(CONFIG_SOC_K3_J721E) += k3-j721e-common-proc-board.dtb \
-			      k3-j721e-r5-common-proc-board.dtb \
-			      k3-j7200-common-proc-board.dtb \
+dtb-$(CONFIG_SOC_K3_J721E) += k3-j721e-r5-common-proc-board.dtb \
 			      k3-j7200-r5-common-proc-board.dtb \
-			      k3-j721e-sk.dtb \
 			      k3-j721e-r5-sk.dtb \
 			      k3-j721e-beagleboneai64.dtb \
 			      k3-j721e-r5-beagleboneai64.dtb
 
-dtb-$(CONFIG_SOC_K3_J721S2) += k3-am68-sk-base-board.dtb\
-			       k3-am68-sk-r5-base-board.dtb\
-			       k3-j721s2-common-proc-board.dtb\
+dtb-$(CONFIG_SOC_K3_J721S2) += k3-am68-sk-r5-base-board.dtb\
 			       k3-j721s2-r5-common-proc-board.dtb
 
 dtb-$(CONFIG_SOC_K3_J784S4) += k3-am69-r5-sk.dtb \
