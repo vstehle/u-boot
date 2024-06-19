@@ -81,7 +81,7 @@ struct uuid {
 #define UUID_VERSION_SHIFT	12
 #define UUID_VERSION		0x4
 
-#define UUID_VARIANT_MASK	0xc0
+#define UUID_VARIANT_MASK	0xb0
 #define UUID_VARIANT_SHIFT	7
 #define UUID_VARIANT		0x1
 
