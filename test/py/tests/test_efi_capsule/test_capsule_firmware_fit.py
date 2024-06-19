@@ -146,8 +146,8 @@ class TestEfiCapsuleFirmwareFit():
                 verify_content(u_boot_console, '100000', 'u-boot:Old')
                 verify_content(u_boot_console, '150000', 'u-boot-env:Old')
             else:
-                # ensure that SANDBOX_UBOOT_IMAGE_GUID is in the ESRT.
-                assert '5AF91295-5A99-F62B-80D7-E9574DE87170' in ''.join(output)
+                # ensure that SANDBOX_FIT_IMAGE_GUID is in the ESRT.
+                assert '8B38ADC7-DF0C-5769-8B89-C090CA3D07A7' in ''.join(output)
                 assert 'ESRT: fw_version=5' in ''.join(output)
                 assert 'ESRT: lowest_supported_fw_version=3' in ''.join(output)
 

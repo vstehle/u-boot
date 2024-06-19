@@ -157,7 +157,7 @@ class TestEfiCapsuleFirmwareSignedFit():
                 'efidebug capsule esrt'])
 
             # ensure that SANDBOX_UBOOT_IMAGE_GUID is in the ESRT.
-            assert 'FD5DB83C-12F3-A46B-80A9-E3007C7FF56E' in ''.join(output)
+            assert '8B38ADC7-DF0C-5769-8B89-C090CA3D07A7' in ''.join(output)
             assert 'ESRT: fw_version=5' in ''.join(output)
             assert 'ESRT: lowest_supported_fw_version=3' in ''.join(output)
 

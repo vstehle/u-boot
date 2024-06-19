@@ -258,7 +258,7 @@ void efi_firmware_fill_version_info(struct efi_firmware_image_descriptor *image_
 static efi_status_t efi_capsule_update_info_gen_ids(void)
 {
 	int ret, i;
-	struct uuid namespace;
+	struct uuid namespace, type;
 	const char *compatible; /* Full array including null bytes */
 	struct efi_fw_image *fw_array;
 
@@ -269,7 +269,7 @@ static efi_status_t efi_capsule_update_info_gen_ids(void)
 		return EFI_SUCCESS;
 
 	ret = uuid_str_to_bin(CONFIG_EFI_CAPSULE_NAMESPACE_UUID,
-			(unsigned char *)&namespace, UUID_STR_FORMAT_GUID);
+			(unsigned char *)&namespace, UUID_STR_FORMAT_STD);
 	if (ret) {
 		log_debug("%s: CONFIG_EFI_CAPSULE_NAMESPACE_UUID is invalid: %d\n", __func__, ret);
 		return EFI_UNSUPPORTED;
@@ -289,11 +289,19 @@ static efi_status_t efi_capsule_update_info_gen_ids(void)
 
 	for (i = 0; i < update_info.num_images; i++) {
 		gen_uuid_v5(&namespace,
-			    (struct uuid *)&fw_array[i].image_type_id,
+			    &type,
 			    compatible, strlen(compatible),
 			    fw_array[i].fw_name, u16_strsize(fw_array[i].fw_name)
 				- sizeof(uint16_t),
 			    NULL);
+
+		/* Convert to little-endian GUID. */
+		fw_array[i].image_type_id = (efi_guid_t)EFI_GUID(
+			be32_to_cpu(type.time_low), be16_to_cpu(type.time_mid),
+			be16_to_cpu(type.time_hi_and_version),
+			type.clock_seq_hi_and_reserved, type.clock_seq_low,
+			type.node[0], type.node[1], type.node[2], type.node[3],
+			type.node[4], type.node[5]);
 
 		log_debug("Image %ls UUID %pUs\n", fw_array[i].fw_name,
 			  &fw_array[i].image_type_id);

@@ -8,17 +8,17 @@
 		image1 {
 			lowest-supported-version = <3>;
 			image-index = <1>;
-			image-type-id = "FD5DB83C-12F3-A46B-80A9-E3007C7FF56E";
+			image-type-id = "50980990-5AF9-5522-86E2-8F05F4D7313C";
 		};
 		image2 {
 			lowest-supported-version = <7>;
 			image-index = <2>;
-			image-type-id = "935FE837-FAC8-4394-C008-737D8852C60D";
+			image-type-id = "3554B655-B9F0-5240-ACE2-6F34C2F7FCCA";
 		};
 		image3 {
 			lowest-supported-version = <3>;
 			image-index = <1>;
-			image-type-id = "FFD97379-0956-FA94-C003-8BFCF5CC097B";
+			image-type-id = "8B38ADC7-DF0C-5769-8B89-C090CA3D07A7";
 		};
 	};
 };

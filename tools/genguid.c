@@ -99,7 +99,7 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	if (uuid_str_to_bin(namespace_str, (unsigned char *)&namespace, UUID_STR_FORMAT_GUID)) {
+	if (uuid_str_to_bin(namespace_str, (unsigned char *)&namespace, UUID_STR_FORMAT_STD)) {
 		fprintf(stderr, "ERROR: Check that your UUID is formatted correctly.\n");
 		exit(EXIT_FAILURE);
 	}
@@ -116,7 +116,7 @@ int main(int argc, char **argv)
 
 	if (debug) {
 		fprintf(stderr, "GUID:         ");
-		uuid_bin_to_str((uint8_t *)&namespace, uuid_str, UUID_STR_FORMAT_GUID);
+		uuid_bin_to_str((uint8_t *)&namespace, uuid_str, UUID_STR_FORMAT_STD);
 		fprintf(stderr, "%s\n", uuid_str);
 		fprintf(stderr, "Compatible:  \"%s\"\n", compatible);
 		fprintf(stderr, "Images:      ");
@@ -134,7 +134,7 @@ int main(int argc, char **argv)
 			    images_u16[i], u16_strsize(images_u16[i]) - sizeof(uint16_t),
 			    NULL);
 
-		uuid_bin_to_str((uint8_t *)&image_type_id, uuid_str, UUID_STR_FORMAT_GUID);
+		uuid_bin_to_str((uint8_t *)&image_type_id, uuid_str, UUID_STR_FORMAT_STD);
 		image_uuids[i] = strdup(uuid_str);
 	}
 

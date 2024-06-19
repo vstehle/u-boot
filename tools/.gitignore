@@ -15,6 +15,7 @@
 /gdb/gdbsend
 /gen_eth_addr
 /gen_ethaddr_crc
+/genguid
 /ifdtool
 /ifwitool
 /img2srec

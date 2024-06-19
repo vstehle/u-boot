@@ -134,10 +134,10 @@ class TestEfiCapsuleFirmwareRaw:
                 'efidebug capsule esrt'])
 
             # ensure that SANDBOX_UBOOT_ENV_IMAGE_GUID is in the ESRT.
-            assert '935FE837-FAC8-4394-C008-737D8852C60D' in ''.join(output)
+            assert '3554B655-B9F0-5240-ACE2-6F34C2F7FCCA' in ''.join(output)
 
             # ensure that SANDBOX_UBOOT_IMAGE_GUID is in the ESRT.
-            assert 'FD5DB83C-12F3-A46B-80A9-E3007C7FF56E' in ''.join(output)
+            assert '50980990-5AF9-5522-86E2-8F05F4D7313C' in ''.join(output)
 
             check_file_removed(u_boot_console, disk_img, capsule_files)
 
@@ -188,12 +188,12 @@ class TestEfiCapsuleFirmwareRaw:
                 verify_content(u_boot_console, '150000', 'u-boot-env:Old')
             else:
                 # ensure that SANDBOX_UBOOT_IMAGE_GUID is in the ESRT.
-                assert 'FD5DB83C-12F3-A46B-80A9-E3007C7FF56E' in ''.join(output)
+                assert '50980990-5AF9-5522-86E2-8F05F4D7313C' in ''.join(output)
                 assert 'ESRT: fw_version=5' in ''.join(output)
                 assert 'ESRT: lowest_supported_fw_version=3' in ''.join(output)
 
                 # ensure that SANDBOX_UBOOT_ENV_IMAGE_GUID is in the ESRT.
-                assert '935FE837-FAC8-4394-C008-737D8852C60D' in ''.join(output)
+                assert '3554B655-B9F0-5240-ACE2-6F34C2F7FCCA' in ''.join(output)
                 assert 'ESRT: fw_version=10' in ''.join(output)
                 assert 'ESRT: lowest_supported_fw_version=7' in ''.join(output)
 

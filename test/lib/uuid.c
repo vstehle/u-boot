@@ -60,7 +60,7 @@ static int lib_test_dynamic_uuid_case(struct unit_test_state *uts,
 	int j;
 
 	ut_assertok(uuid_str_to_bin(data->namespace, (unsigned char *)&namespace,
-				    UUID_STR_FORMAT_GUID));
+				    UUID_STR_FORMAT_STD));
 
 	for (j = 0; data->images[j]; j++) {
 		const char *expected_uuid = data->expected_uuids[j];
@@ -72,7 +72,7 @@ static int lib_test_dynamic_uuid_case(struct unit_test_state *uts,
 			    data->compatible, strlen(data->compatible),
 			    image, u16_strsize(image) - sizeof(uint16_t),
 			    NULL);
-		uuid_bin_to_str((unsigned char *)&uuid, uuid_str, UUID_STR_FORMAT_GUID);
+		uuid_bin_to_str((unsigned char *)&uuid, uuid_str, UUID_STR_FORMAT_STD);
 
 		ut_asserteq_str(expected_uuid, uuid_str);
 	}
@@ -94,9 +94,9 @@ static int lib_test_dynamic_uuid(struct unit_test_state *uts)
 				NULL,
 			},
 			.expected_uuids = {
-				"fd5db83c-12f3-a46b-80a9-e3007c7ff56e",
-				"935fe837-fac8-4394-c008-737d8852c60d",
-				"ffd97379-0956-fa94-c003-8bfcf5cc097b",
+				"50980990-5af9-5522-86e2-8f05f4d7313c",
+				"3554b655-b9f0-5240-ace2-6f34c2f7fcca",
+				"8b38adc7-df0c-5769-8b89-c090ca3d07a7",
 				NULL,
 			}
 		},
@@ -108,7 +108,7 @@ static int lib_test_dynamic_uuid(struct unit_test_state *uts)
 				NULL,
 			},
 			.expected_uuids = {
-				"8ee418dc-7e00-e156-80a7-274fbbc05ba8",
+				"14c399c8-4e16-5ba4-b720-44426d3a0bb9",
 				NULL,
 			}
 		},

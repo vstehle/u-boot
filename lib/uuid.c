@@ -391,7 +391,7 @@ void gen_uuid_v5(const struct uuid *namespace, struct uuid *uuid, ...)
 	va_list args;
 	const uint8_t *data;
 	uint8_t hash[SHA1_SUM_LEN];
-	uint32_t tmp;
+	uint16_t tmp;
 
 	sha1_starts(&ctx);
 	/* Hash the namespace UUID as salt */
@@ -411,11 +411,11 @@ void gen_uuid_v5(const struct uuid *namespace, struct uuid *uuid, ...)
 	memcpy(uuid, hash, sizeof(*uuid));
 
 	/* Configure variant/version bits */
-	tmp = be32_to_cpu(uuid->time_hi_and_version);
+	tmp = be16_to_cpu(uuid->time_hi_and_version);
 	tmp = (tmp & ~UUID_VERSION_MASK) | (5 << UUID_VERSION_SHIFT);
-	uuid->time_hi_and_version = cpu_to_be32(tmp);
+	uuid->time_hi_and_version = cpu_to_be16(tmp);
 
-	uuid->clock_seq_hi_and_reserved &= UUID_VARIANT_MASK;
+	uuid->clock_seq_hi_and_reserved &= ~UUID_VARIANT_MASK;
 	uuid->clock_seq_hi_and_reserved |= UUID_VARIANT << UUID_VARIANT_SHIFT;
 }
 #endif
